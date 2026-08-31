@@ -349,7 +349,8 @@ h1, h2, h3, h4, h5, h6 {
   padding: var(--space-12) var(--space-8) var(--space-16);
   position: relative;
   overflow: hidden;
-  min-height: 85vh;
+  /* Sem min-height fixa: o quadro ja tem altura propria, e forcar 85vh
+     deixava uma faixa vazia acima e abaixo dele. */
   display: flex;
   align-items: center;
 }
@@ -2244,15 +2245,28 @@ h1, h2, h3, h4, h5, h6 {
    ============================================================ */
 .palco {
   display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(260px, 1fr);
-  gap: var(--space-8);
+  /* A coluna da capa é mais alta que o visor. A ficha técnica ocupa a
+     sobra embaixo do 3D em vez de deixar um vão em branco. */
+  grid-template-columns: minmax(0, 1.85fr) minmax(280px, 1fr);
+  grid-template-areas:
+    "visor lado"
+    "ficha lado";
+  gap: var(--space-6) var(--space-8);
   max-width: 1300px;
   margin: var(--space-10) auto var(--space-8);
   padding: 0 var(--space-8);
   align-items: start;
 }
 
-.palco-3d { position: relative; }
+.palco-3d   { grid-area: visor; }
+.palco-lado { grid-area: lado; }
+
+.palco .film-info-section {
+  grid-area: ficha;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
 
 .palco-lado {
   display: flex;
@@ -2305,9 +2319,10 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   padding: var(--space-3) var(--space-4);
   margin-top: var(--space-4);
-  background: linear-gradient(135deg, #0d1b3e 0%, #16295c 55%, #0a1330 100%);
+  /* Creme da casa: o azul fica só no disco, que é o que identifica o Blu-ray */
+  background: linear-gradient(150deg, var(--cream-light) 0%, var(--cream-dark) 100%);
   border: 2px solid var(--gold-dark);
-  color: var(--parchment);
+  color: var(--charcoal);
   cursor: pointer;
   text-align: left;
   transition: all var(--transition-fast);
@@ -2316,7 +2331,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-bluray:hover {
   border-color: var(--gold);
-  box-shadow: 0 0 0 1px var(--gold-dark), 0 8px 20px rgba(10, 20, 50, 0.35);
+  background: linear-gradient(150deg, #fffdf7 0%, var(--cream-light) 100%);
+  box-shadow: 0 0 0 1px var(--gold-dark), var(--shadow-hover);
   transform: translateY(-2px);
 }
 
@@ -2331,8 +2347,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .disco-borda  { fill: #0b57d0; stroke: #7fb0ff; stroke-width: 1.2; }
 .disco-trilha { fill: none; stroke: rgba(190, 220, 255, 0.45); stroke-width: 0.8; }
-.disco-furo   { fill: var(--charcoal); stroke: #7fb0ff; stroke-width: 1; }
-.disco-play   { fill: var(--gold-light); }
+.disco-furo   { fill: var(--cream-light); stroke: #1a4fa0; stroke-width: 1; }
+.disco-play   { fill: #fff; }
 
 .btn-bluray:hover .btn-bluray-disco svg {
   animation: disco-girar 1.4s linear infinite;
@@ -2350,7 +2366,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold-light);
+  color: var(--charcoal);
   font-weight: 400;
 }
 
@@ -2359,7 +2375,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.52rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(232, 222, 200, 0.55);
+  color: var(--muted);
   font-style: normal;
 }
 
@@ -2405,6 +2421,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 900px) {
   .palco {
     grid-template-columns: 1fr;
+    grid-template-areas: "visor" "lado" "ficha";
     gap: var(--space-6);
     padding: 0 var(--space-4);
     margin-top: var(--space-6);
@@ -2477,3 +2494,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* As estrelas do card ficam menores e sem o número ao lado */
 .card-stars { display: flex; align-items: center; gap: var(--space-2); }
+
+/* Sem paginas suficientes a nav fica vazia, mas a margem continuava
+   reservando espaco no fim da colecao. */
+.pagination:empty,
+.semanas-nav:empty { display: none !important; }
