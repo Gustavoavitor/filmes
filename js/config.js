@@ -18,8 +18,8 @@
 // ============================================================
 
 const SUPABASE_CONFIG = {
-  url:     'https://SEU_PROJETO.supabase.co',   // ← Substitua aqui
-  anonKey: 'SUA_CHAVE_ANONIMA_AQUI',            // ← Substitua aqui
+  url:      'https://rnpgknzettixrizaevft.supabase.co',   // ← Substitua aqui
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucGdrbnpldHRpeHJpemFldmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMDM2NTYsImV4cCI6MjEwMzc3OTY1Nn0.LL2AkvUYQml7sGoYfFztzAjN5x3uVM5WXNMxb1jwQt0',            // ← Substitua aqui
 
   // Preenchida por js/config.local.js, que fica fora do repositório.
   // Em produção continua nula, e o painel de administração não abre.
