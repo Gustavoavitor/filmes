@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Painel de Administração — Cinemateca Pessoal</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    /* ── Ajustes específicos do painel ─────────────────────── */
+    .admin-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--mahogany-dark), var(--charcoal));
+      padding: var(--space-6);
+    }
+    .admin-gate-card {
+      width: 100%; max-width: 380px;
+      background: var(--cream-light);
+      border: 3px solid var(--gold-dark);
+      box-shadow: var(--shadow-dark);
+      padding: var(--space-8);
+      text-align: center;
+    }
+    .admin-toolbar {
+      display: flex; align-items: center; gap: var(--space-3);
+      flex-wrap: wrap; margin-bottom: var(--space-6);
+    }
+    .admin-toolbar .filter-search { flex: 1; min-width: 200px; }
+    .admin-thumb {
+      width: 40px; height: 60px; object-fit: cover;
+      border: 1px solid var(--parchment); background: var(--cream-dark);
+      display: block;
+    }
+    .admin-thumb-empty {
+      width: 40px; height: 60px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px dashed var(--parchment); background: var(--cream-dark);
+      color: var(--muted); font-size: 1rem;
+    }
+    .admin-row-actions { display: flex; gap: var(--space-2); white-space: nowrap; }
+    .btn-mini {
+      font-family: var(--font-marquee); font-size: 0.6rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.4rem 0.7rem; cursor: pointer;
+      border: 1px solid var(--parchment); background: var(--cream-light);
+      color: var(--charcoal-mid); transition: all var(--transition-fast);
+      display: inline-flex; align-items: center; text-decoration: none;
+      line-height: 1;
+    }
+    .btn-mini:hover { border-color: var(--gold-dark); color: var(--charcoal); }
+    .btn-mini.danger:hover { border-color: var(--red-cinema); color: var(--red-cinema); }
+    .admin-form-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0 var(--space-5);
+    }
+    .admin-form-grid .span-2 { grid-column: 1 / -1; }
+    .admin-panel {
+      background: var(--cream-light); border: 1px solid var(--parchment);
+      border-top: 3px solid var(--gold-dark);
+      padding: var(--space-6); box-shadow: var(--shadow-card);
+    }
+    .admin-check {
+      display: flex; align-items: center; gap: var(--space-3);
+      font-family: var(--font-body); font-size: 0.85rem; color: var(--charcoal-mid);
+      cursor: pointer; padding: var(--space-3) 0;
+    }
+    .admin-check input { width: 18px; height: 18px; accent-color: var(--gold-dark); cursor: pointer; }
+    .admin-hint {
+      font-size: 0.72rem; color: var(--muted); font-style: italic;
+      margin-top: calc(var(--space-1) * -1); margin-bottom: var(--space-4);
+    }
+    .admin-hint code {
+      font-family: var(--font-marquee); font-style: normal;
+      background: var(--cream-dark); padding: 1px 5px; color: var(--charcoal);
+    }
+    .admin-preview {
+      width: 90px; aspect-ratio: 2/3; object-fit: cover;
+      border: 1px solid var(--parchment); margin-top: var(--space-2);
+    }
+    .admin-badge {
+      font-family: var(--font-marquee); font-size: 0.55rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.2rem 0.5rem; border: 1px solid var(--gold-dark);
+      color: var(--gold-dark); white-space: nowrap;
+    }
+    .admin-warning {
+      background: rgba(155, 40, 20, 0.07);
+      border-left: 4px solid var(--red-cinema);
+      padding: var(--space-4) var(--space-5);
+      margin-bottom: var(--space-6);
+      font-size: 0.8rem; line-height: 1.6; color: var(--charcoal-mid);
+    }
+    .admin-mobile-nav { display: none; }
+    @media (max-width: 900px) {
+      .admin-mobile-nav {
+        display: flex; gap: var(--space-2); flex-wrap: wrap;
+        margin-bottom: var(--space-6);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+       LOGIN GATE
+  ══════════════════════════════════════════════════ -->
+  <div class="admin-gate" id="admin-gate">
+    <div class="admin-gate-card">
+      <div style="font-family:var(--font-display);font-size:1.6rem;font-style:italic;color:var(--charcoal);margin-bottom:var(--space-2)">
+        Cinemateca
+      </div>
+      <div style="font-family:var(--font-marquee);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:var(--space-6)">
+        Área restrita
+      </div>
+      <form id="gate-form" novalidate>
+        <div class="form-group" style="text-align:left">
+          <label class="form-label" for="gate-password">Senha</label>
+          <input type="password" id="gate-password" class="form-input" autocomplete="current-password" autofocus />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">✦ Entrar</button>
+      </form>
+      <p id="gate-error" style="color:var(--red-cinema);font-size:0.75rem;margin-top:var(--space-4);display:none">
+        Senha incorreta.
+      </p>
+      <a href="index.html" style="display:inline-block;margin-top:var(--space-5);font-family:var(--font-marquee);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)">
+        ← Voltar ao site
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       PAINEL
+  ══════════════════════════════════════════════════ -->
+  <div class="admin-layout" id="admin-app" style="display:none">
+
+    <!-- ── Sidebar ── -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-logo">Cinemateca<br /><span style="font-size:0.7rem;font-style:normal;color:var(--parchment)">admin</span></div>
+      <nav aria-label="Seções do painel">
+        <a class="admin-nav-item active" data-view="filmes" href="#filmes">Filmes</a>
+        <a class="admin-nav-item" data-view="recomendacoes" href="#recomendacoes">Recomendações</a>
+        <a class="admin-nav-item" href="index.html" style="margin-top:var(--space-6)">↗ Ver o site</a>
+        <a class="admin-nav-item" id="btn-logout" href="#sair">⏻ Sair</a>
+      </nav>
+    </aside>
+
+    <!-- ── Conteúdo ── -->
+    <main class="admin-content" role="main">
+
+      <div class="admin-mobile-nav">
+        <button class="filter-btn active" data-view="filmes">Filmes</button>
+        <button class="filter-btn" data-view="recomendacoes">Recomendações</button>
+        <button class="filter-btn" id="btn-logout-mobile">Sair</button>
+      </div>
+
+      <!-- ════════ FILMES ════════ -->
+      <section id="view-filmes">
+
+        <!-- Lista -->
+        <div id="filmes-list-wrap">
+          <h1 class="admin-section-title">Filmes da Coleção</h1>
+
+          <div class="admin-toolbar">
+            <button class="btn btn-primary" id="btn-novo-filme">✦ Novo Filme</button>
+            <input type="search" class="filter-search" id="busca-filmes" placeholder="Buscar título ou diretor…" aria-label="Buscar filmes" />
+            <span id="contador-filmes" style="font-family:var(--font-marquee);font-size:0.65rem;letter-spacing:0.15em;color:var(--muted)"></span>
+          </div>
+
+          <div id="filmes-tabela">
+            <div class="loading-spinner"><div class="spinner-reel"></div><span class="loading-text">Carregando…</span></div>
+          </div>
+        </div>
+
+        <!-- Formulário -->
+        <div id="filmes-form-wrap" style="display:none">
+          <h1 class="admin-section-title" id="filme-form-title">Novo Filme</h1>
+
+          <div class="admin-panel">
+            <form id="filme-form" novalidate>
+              <input type="hidden" id="filme-id" />
+
+              <div class="admin-form-grid">
+                <div class="form-group span-2">
+                  <label class="form-label" for="f-titulo">Título *</label>
+                  <input type="text" id="f-titulo" class="form-input" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="f-titulo-original">Título original</label>
+                  <input type="text" id="f-titulo-original" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-ano">Ano</label>
+                  <input type="number" id="f-ano" class="form-input" min="1888" max="2100" step="1" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="f-diretor">Diretor</label>
+                  <input type="text" id="f-diretor" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-pais">País</label>
+                  <input type="text" id="f-pais" class="form-input" />
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label" for="f-elenco">Elenco</label>
+                  <input type="text" id="f-elenco" class="form-input" placeholder="Nome, Nome, Nome" />
+                  <p class="admin-hint">Separe os nomes por vírgula.</p>
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label" for="f-sinopse">Sinopse</label>
+                  <textarea id="f-sinopse" class="form-textarea" rows="5"></textarea>
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label" for="f-generos">Gêneros</label>
+                  <input type="text" id="f-generos" class="form-input" placeholder="Drama, Ficção Científica" />
+                  <p class="admin-hint">Separe por vírgula — é assim que o filtro da home monta a lista.</p>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="f-formato">Formato</label>
+                  <select id="f-formato" class="filter-select" style="width:100%">
+                    <option value="">— Selecione —</option>
+                    <option value="bluray">Blu-ray</option>
+                    <option value="dvd">DVD</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-edicao">Edição</label>
+                  <input type="text" id="f-edicao" class="form-input" placeholder="ex: Edição de Colecionador" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="f-duracao">Duração (min)</label>
+                  <input type="number" id="f-duracao" class="form-input" min="1" step="1" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-classificacao">Classificação</label>
+                  <input type="text" id="f-classificacao" class="form-input" placeholder="ex: 14 anos" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="f-capa">URL da capa (frente)</label>
+                  <input type="url" id="f-capa" class="form-input" placeholder="https://…" />
+                  <img class="admin-preview" id="f-capa-preview" alt="" style="display:none" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-capa-traseira">URL da capa (verso)</label>
+                  <input type="url" id="f-capa-traseira" class="form-input" placeholder="https://…" />
+                  <img class="admin-preview" id="f-capa-traseira-preview" alt="" style="display:none" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="f-trailer">URL do trailer</label>
+                  <input type="url" id="f-trailer" class="form-input" placeholder="https://youtube.com/watch?v=…" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="f-cor-spine">Cor da lombada (3D)</label>
+                  <input type="color" id="f-cor-spine" class="form-input" value="#1a1a1a" style="height:46px;padding:4px" />
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label">Arquivo 3D (GLB)</label>
+                  <p class="admin-hint" id="f-glb-hint">
+                    Salve o arquivo em <code>assets/modelos3d/</code> com este nome exato: <code id="f-glb-nome">—</code>
+                  </p>
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label" for="f-nota-container">Minha nota</label>
+                  <div style="display:flex;align-items:center;gap:var(--space-4)">
+                    <div id="f-nota-container"></div>
+                    <span id="f-nota-valor" style="font-family:var(--font-display);font-size:1.3rem;font-weight:900;color:var(--gold-dark)">—</span>
+                    <button type="button" class="btn-mini" id="f-nota-limpar">Limpar nota</button>
+                  </div>
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="admin-check">
+                    <input type="checkbox" id="f-destaque" />
+                    Exibir no billboard da página inicial
+                  </label>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6);padding-top:var(--space-5);border-top:1px solid var(--parchment)">
+                <button type="submit" class="btn btn-primary" id="filme-salvar">✦ Salvar</button>
+                <button type="button" class="btn btn-secondary" id="filme-cancelar">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ════════ RECOMENDAÇÕES ════════ -->
+      <section id="view-recomendacoes" style="display:none">
+
+        <!-- Lista -->
+        <div id="recs-list-wrap">
+          <h1 class="admin-section-title">Recomendações Semanais</h1>
+
+          <div class="admin-toolbar">
+            <button class="btn btn-primary" id="btn-nova-rec">✦ Nova Recomendação</button>
+            <input type="search" class="filter-search" id="busca-recs" placeholder="Buscar título ou diretor…" aria-label="Buscar recomendações" />
+            <span id="contador-recs" style="font-family:var(--font-marquee);font-size:0.65rem;letter-spacing:0.15em;color:var(--muted)"></span>
+          </div>
+
+          <div id="recs-tabela">
+            <div class="loading-spinner"><div class="spinner-reel"></div><span class="loading-text">Carregando…</span></div>
+          </div>
+        </div>
+
+        <!-- Formulário -->
+        <div id="recs-form-wrap" style="display:none">
+          <h1 class="admin-section-title" id="rec-form-title">Nova Recomendação</h1>
+
+          <div class="admin-panel">
+            <form id="rec-form" novalidate>
+              <input type="hidden" id="rec-id" />
+
+              <div class="admin-form-grid">
+                <div class="form-group span-2">
+                  <label class="form-label" for="r-titulo">Título *</label>
+                  <input type="text" id="r-titulo" class="form-input" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="r-titulo-original">Título original</label>
+                  <input type="text" id="r-titulo-original" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="r-ano">Ano</label>
+                  <input type="number" id="r-ano" class="form-input" min="1888" max="2100" step="1" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="r-diretor">Diretor</label>
+                  <input type="text" id="r-diretor" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="r-pais">País</label>
+                  <input type="text" id="r-pais" class="form-input" />
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label" for="r-sinopse">Sinopse</label>
+                  <textarea id="r-sinopse" class="form-textarea" rows="5"></textarea>
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="form-label" for="r-generos">Gêneros</label>
+                  <input type="text" id="r-generos" class="form-input" placeholder="Animação, Fantasia" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="r-capa">URL da capa</label>
+                  <input type="url" id="r-capa" class="form-input" placeholder="https://…" />
+                  <img class="admin-preview" id="r-capa-preview" alt="" style="display:none" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="r-semana">Semana</label>
+                  <input type="date" id="r-semana" class="form-input" />
+                  <p class="admin-hint">Use sempre a <strong>segunda-feira</strong> da semana — é como a página agrupa.</p>
+                  <button type="button" class="btn-mini" id="r-semana-atual">Usar semana atual</button>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="r-trailer">URL do trailer</label>
+                  <input type="url" id="r-trailer" class="form-input" placeholder="https://youtube.com/watch?v=…" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="r-drive">Link do Google Drive</label>
+                  <input type="url" id="r-drive" class="form-input" placeholder="https://drive.google.com/…" />
+                </div>
+
+                <div class="form-group span-2">
+                  <label class="admin-check">
+                    <input type="checkbox" id="r-destaque" />
+                    Destaque da semana
+                  </label>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6);padding-top:var(--space-5);border-top:1px solid var(--parchment)">
+                <button type="submit" class="btn btn-primary" id="rec-salvar">✦ Salvar</button>
+                <button type="button" class="btn btn-secondary" id="rec-cancelar">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- ══════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <!-- Fora do repositorio: traz a service_role key e a senha do painel.
+       Em producao o arquivo nao existe e o admin fica indisponivel. -->
+  <script src="js/config.local.js"></script>
+  <script src="js/rating.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
