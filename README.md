@@ -12,7 +12,7 @@ Site estático (HTML + CSS + JS puro), com Supabase como banco de dados.
 | `index.html`        | Home: billboard de destaques, grid da coleção, filtros    | pronta |
 | `filme.html`        | Ficha do filme, visualizador 3D, comentários              | pronta |
 | `recomendacoes.html`| Recomendações semanais, navegação por semana, trailer     | pronta |
-| `admin.html`        | Painel CRUD de filmes e recomendações                     | pronta |
+| `admin.html`        | Painel CRUD de filmes e recomendações                     | **fora de uso** |
 
 ## Configuração inicial
 
@@ -49,14 +49,12 @@ de Row Level Security do [`supabase-schema.sql`](supabase-schema.sql), que
 permitem leitura pública e inserção apenas em comentários.
 
 **`js/config.local.js`** — fora do repositório, listado no `.gitignore`.
-Copie o modelo e preencha:
+Guardaria a `service_role` key e a senha do painel de administração.
 
-```bash
-cp js/config.local.example.js js/config.local.js
-```
-
-Ele carrega a `service_role` key e a senha do painel. Só o `admin.html` lê esse
-arquivo.
+> **Hoje esse arquivo não serve para nada.** O Supabase bloqueia o uso de
+> chaves secretas dentro do navegador (`Forbidden use of secret API key in
+> browser`), então o painel não abre nem publicado nem rodando local.
+> Veja **Cadastrando filmes**, logo abaixo.
 
 > **Por que separar.** A `service_role` key ignora todas as políticas de RLS:
 > quem a tiver pode ler, alterar e apagar qualquer dado do banco. Se ela
@@ -67,6 +65,23 @@ arquivo.
 > filmes, recomendações e comentários — e o painel de administração existe
 > apenas quando você roda o projeto localmente. Em produção ele mostra um aviso
 > e o link "Admin" some da navegação.
+
+### Cadastrando filmes
+
+Enquanto o painel estiver fora de uso, cadastre pelo **Table Editor** do
+próprio Supabase. Algumas colunas exigem cuidado:
+
+| Coluna       | Cuidado |
+| ------------ | ------- |
+| `formato`    | Só aceita `bluray` ou `dvd`, minúsculo — há um CHECK no banco |
+| `generos`    | Separados por vírgula (`Drama, Ficção Científica`) — é o que monta o filtro da home |
+| `minha_nota` | Entre `0.5` e `5`, com meio ponto (`4.5`) |
+| `destaque`   | `true` coloca o filme no billboard da página inicial |
+| `capa_url`   | URL de uma imagem já hospedada em algum lugar |
+| `cor_spine`  | Hex da lombada no 3D, ex. `#2c3e50` |
+
+Só `titulo` é obrigatório; o resto o site trata como opcional e some da tela
+quando está vazio.
 
 ### 4. Rodar localmente
 
@@ -148,11 +163,14 @@ injetado no cliente seria igualmente público.
 
 ## Pendências conhecidas
 
-Nenhuma pendência técnica aberta. O que falta é operacional:
+- **O painel de administração não funciona.** Ele escreve no banco usando a
+  `service_role` key direto do navegador, e o Supabase passou a bloquear isso
+  nas chaves do formato novo (`sb_secret_…`). A mesma chave responde 200 fora
+  do navegador, então é um bloqueio deliberado deles, não um bug do projeto.
 
-- **Criar o projeto no Supabase e preencher os dois arquivos de config** — até lá
-  as páginas mostram um aviso pedindo a configuração, em vez de tentar buscar
-  dados.
-- **Se um dia quiser administrar a coleção pelo site publicado**, aí sim vale
-  migrar para Supabase Auth com políticas RLS de escrita para usuários
-  autenticados. Enquanto o painel rodar só local, não é necessário.
+  Para reativá-lo: criar um usuário no Supabase Auth, trocar o portão de senha
+  por um login de verdade e adicionar políticas de RLS de escrita para
+  `authenticated`. Aí o painel volta a funcionar — e passa a funcionar também
+  no site publicado, sem nenhuma chave secreta no cliente.
+
+  Enquanto isso, o cadastro é feito pelo Table Editor do Supabase.

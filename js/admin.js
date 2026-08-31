@@ -27,17 +27,23 @@ function initGate() {
   const input = document.getElementById('gate-password');
   const erro  = document.getElementById('gate-error');
 
-  // Sem js/config.local.js não há service_role key nem senha: é o estado
-  // esperado em produção, já que esse arquivo não vai para o repositório.
+  // Este painel escreve no banco com a service_role key. As chaves do
+  // formato novo (sb_secret_…) são bloqueadas pelo Supabase sempre que a
+  // requisição vem de um navegador — "Forbidden use of secret API key in
+  // browser" — então o painel não funciona nem publicado nem local.
+  // Enquanto não migrar para Supabase Auth + RLS, cadastre pelo painel
+  // do próprio Supabase (Table Editor).
   if (semChaveAdmin() || !ADMIN_PASSWORD) {
     form.style.display = 'none';
     erro.style.display = 'block';
     erro.style.color = 'var(--charcoal-mid)';
     erro.innerHTML = `
-      <strong style="color:var(--red-cinema)">Painel indisponível aqui.</strong><br /><br />
-      O administrador roda apenas na sua máquina. Copie
-      <code>js/config.local.example.js</code> para <code>js/config.local.js</code>,
-      preencha a service_role key e a senha, e abra o site localmente.`;
+      <strong style="color:var(--red-cinema)">Painel fora de uso.</strong><br /><br />
+      O Supabase bloqueia o uso de chaves secretas dentro do navegador, então
+      este painel não funciona — nem aqui, nem rodando localmente.<br /><br />
+      Para cadastrar filmes, use o <strong>Table Editor</strong> no painel do
+      Supabase. Para reativar esta tela, é preciso migrar para Supabase Auth
+      com políticas de RLS para usuários autenticados.`;
     return;
   }
 

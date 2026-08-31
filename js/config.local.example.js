@@ -9,9 +9,10 @@
 // nem publicado. A service_role key ignora todas as políticas de RLS:
 // quem tiver ela consegue ler, alterar e apagar qualquer dado do banco.
 //
-// Só o admin.html carrega este arquivo. Em produção ele não existe,
-// então o painel de administração fica indisponível — de propósito.
-// Para administrar a coleção, rode o site na sua máquina.
+// AVISO: hoje este arquivo não resolve nada. O Supabase bloqueia o uso de
+// chaves secretas dentro do navegador, então o painel de administração não
+// abre nem publicado nem rodando local. Cadastre pelo Table Editor do
+// Supabase, ou migre o admin para Supabase Auth + RLS. Veja o README.
 // ============================================================
 
 // Project Settings > API > "service_role" "secret"
