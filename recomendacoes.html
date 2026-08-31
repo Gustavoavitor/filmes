@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recomendações da Semana — Cinemateca Pessoal</title>
+  <meta name="description" content="Recomendações semanais de cinema fora do circuito: um filme em destaque e outros títulos escolhidos a dedo, com trailer e link para assistir." />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="header-top">
+      <a href="index.html" class="site-logo" aria-label="Cinemateca Pessoal — Página Inicial">
+        <span class="logo-subtitle">est. mmxxiv</span>
+        <span class="logo-title">
+          <span class="logo-star">✦</span>
+          Cinemateca Pessoal
+          <span class="logo-star">✦</span>
+        </span>
+      </a>
+      <nav class="site-nav" role="navigation" aria-label="Navegação principal">
+        <a href="index.html" class="nav-link" id="nav-colecao">Coleção</a>
+        <a href="recomendacoes.html" class="nav-link active" id="nav-recomendacoes" aria-current="page">Recomendações</a>
+        <a href="admin.html" class="nav-admin-btn" id="nav-admin">⚙ Admin</a>
+      </nav>
+    </div>
+    <div class="film-strip" role="presentation" aria-hidden="true"></div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════ -->
+  <section class="recs-hero" aria-labelledby="recs-heading">
+    <div class="week-label" id="recs-week-label">Carregando a programação…</div>
+    <h1 class="recs-title" id="recs-heading">Recomendações</h1>
+    <p class="recs-description">
+      Toda semana, alguns títulos que não estão na prateleira física —
+      cinema de fora do circuito, garimpado e comentado.
+    </p>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       DESTAQUE DA SEMANA
+  ══════════════════════════════════════════════════ -->
+  <section class="rec-featured-card" id="featured-rec" aria-label="Destaque da semana">
+    <div class="loading-spinner" style="padding:3rem 0">
+      <div class="spinner-reel" role="progressbar" aria-label="Carregando destaque"></div>
+      <span class="loading-text">Escolhendo o destaque…</span>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SEMANAS + GRID
+  ══════════════════════════════════════════════════ -->
+  <main role="main">
+
+    <header class="section-header">
+      <span class="section-label">Também nesta semana</span>
+      <h2 class="section-title">Os Títulos</h2>
+      <div class="section-divider" aria-hidden="true"></div>
+    </header>
+
+    <nav class="semanas-nav" id="semanas-nav" aria-label="Semanas anteriores"></nav>
+
+    <div style="max-width:1200px;margin:0 auto;padding:0 2rem 4rem">
+      <div class="films-grid recs-grid stagger-children" id="recs-grid" aria-live="polite" aria-label="Recomendações da semana">
+        <div class="loading-spinner" style="grid-column:1/-1">
+          <div class="spinner-reel" role="progressbar" aria-label="Carregando recomendações"></div>
+          <span class="loading-text">Rebobinando a fita…</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════
+       MODAL DE TRAILER
+  ══════════════════════════════════════════════════ -->
+  <div class="trailer-modal" id="trailer-modal" role="dialog" aria-modal="true" aria-labelledby="trailer-modal-title">
+    <div class="trailer-modal-inner">
+      <div class="trailer-modal-header">
+        <span class="trailer-modal-title" id="trailer-modal-title">Trailer</span>
+        <button type="button" class="trailer-modal-close" onclick="closeTrailer()" aria-label="Fechar trailer">✕ Fechar</button>
+      </div>
+      <div class="trailer-modal-body">
+        <iframe id="trailer-iframe" src="" title="Trailer" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-logo">Cinemateca Pessoal</div>
+    <div class="footer-divider" aria-hidden="true"></div>
+    <p class="footer-text">Uma coleção de mídias físicas com amor pelo cinema</p>
+  </footer>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- ══════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/recomendacoes.js"></script>
+</body>
+</html>

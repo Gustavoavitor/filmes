@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cinemateca Pessoal — Coleção de Mídias Físicas</title>
+  <meta name="description" content="Catálogo digital de uma coleção pessoal de filmes em Blu-ray e DVD. Explore, descubra e leia resenhas de títulos cuidadosamente selecionados." />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="header-top">
+      <a href="index.html" class="site-logo" aria-label="Cinemateca Pessoal — Página Inicial">
+        <span class="logo-subtitle">est. mmxxiv</span>
+        <span class="logo-title">
+          <span class="logo-star">✦</span>
+          Cinemateca Pessoal
+          <span class="logo-star">✦</span>
+        </span>
+      </a>
+      <nav class="site-nav" role="navigation" aria-label="Navegação principal">
+        <a href="index.html" class="nav-link active" id="nav-colecao">Coleção</a>
+        <a href="recomendacoes.html" class="nav-link" id="nav-recomendacoes">Recomendações</a>
+        <a href="admin.html" class="nav-admin-btn" id="nav-admin">⚙ Admin</a>
+      </nav>
+    </div>
+    <div class="film-strip" role="presentation" aria-hidden="true"></div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════
+       BILLBOARD / HERO
+  ══════════════════════════════════════════════════ -->
+  <section class="billboard-section" id="billboard" aria-label="Destaques em exibição">
+    <div class="billboard-bg" aria-hidden="true"></div>
+    <div class="billboard-texture" aria-hidden="true"></div>
+
+    <div class="billboard-frame">
+      <div class="billboard-header">
+        <span class="billboard-label" id="billboard-counter">✦ &nbsp; Em Destaque &nbsp; ✦</span>
+      </div>
+
+      <div class="billboard-content" id="billboard-content">
+        <!-- Loading state -->
+        <div class="loading-spinner" style="grid-column:1/-1">
+          <div class="spinner-reel" role="progressbar" aria-label="Carregando destaques"></div>
+          <span class="loading-text">Preparando a sessão…</span>
+        </div>
+      </div>
+
+      <div class="billboard-controls" id="billboard-dots" role="tablist" aria-label="Navegação de slides"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       COLLECTION SECTION
+  ══════════════════════════════════════════════════ -->
+  <main class="collection-section" id="colecao" role="main">
+
+    <header class="section-header">
+      <span class="section-label">Acervo Físico</span>
+      <h1 class="section-title">A Coleção</h1>
+      <div class="section-divider" aria-hidden="true"></div>
+    </header>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" role="search" aria-label="Filtros da coleção">
+      <span class="filter-label">Filtrar por:</span>
+
+      <div class="filter-group" role="group" aria-label="Formato">
+        <button class="filter-btn active" data-filter="formato" data-value="" id="filter-todos">Todos</button>
+        <button class="filter-btn" data-filter="formato" data-value="bluray" id="filter-bluray">Blu-ray</button>
+        <button class="filter-btn" data-filter="formato" data-value="dvd" id="filter-dvd">DVD</button>
+      </div>
+
+      <div class="filter-group" role="group" aria-label="Gênero">
+        <select class="filter-select" id="filter-genero" aria-label="Filtrar por gênero">
+          <option value="">— Gênero —</option>
+        </select>
+      </div>
+
+      <div class="filter-group" role="group" aria-label="Ordenação">
+        <select class="filter-select" id="filter-ordem" aria-label="Ordenar por">
+          <option value="created_at-desc">Mais Recentes</option>
+          <option value="titulo-asc">Título (A–Z)</option>
+          <option value="ano-desc">Ano (Novo–Velho)</option>
+          <option value="ano-asc">Ano (Velho–Novo)</option>
+          <option value="minha_nota-desc">Nota (Alta–Baixa)</option>
+        </select>
+      </div>
+
+      <div class="filter-group" style="flex:1; justify-content:flex-end;">
+        <input
+          type="search"
+          class="filter-search"
+          id="filter-busca"
+          placeholder="Buscar título, diretor…"
+          aria-label="Buscar na coleção"
+        />
+      </div>
+    </div>
+
+    <!-- Film Grid -->
+    <div class="films-grid stagger-children" id="films-grid" aria-live="polite" aria-label="Filmes da coleção">
+      <!-- Cards rendered by JS -->
+      <div class="loading-spinner" style="grid-column:1/-1">
+        <div class="spinner-reel" role="progressbar" aria-label="Carregando filmes"></div>
+        <span class="loading-text">Organizando a prateleira…</span>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="pagination" id="pagination" aria-label="Páginas da coleção" style="
+      display:flex; justify-content:center; gap:0.5rem; margin-top:3rem; flex-wrap:wrap;
+    "></nav>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-logo">Cinemateca Pessoal</div>
+    <div class="footer-divider" aria-hidden="true"></div>
+    <p class="footer-text">Uma coleção de mídias físicas com amor pelo cinema</p>
+  </footer>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- ══════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/rating.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

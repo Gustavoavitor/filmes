@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalhes do Filme — Cinemateca Pessoal</title>
+  <meta name="description" content="Detalhes, resenha e visualização 3D do filme na coleção da Cinemateca Pessoal." />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="header-top">
+      <a href="index.html" class="site-logo" aria-label="Cinemateca Pessoal — Página Inicial">
+        <span class="logo-subtitle">est. mmxxiv</span>
+        <span class="logo-title">
+          <span class="logo-star">✦</span>
+          Cinemateca Pessoal
+          <span class="logo-star">✦</span>
+        </span>
+      </a>
+      <nav class="site-nav" role="navigation" aria-label="Navegação principal">
+        <a href="index.html" class="nav-link" id="nav-colecao">Coleção</a>
+        <a href="recomendacoes.html" class="nav-link" id="nav-recomendacoes">Recomendações</a>
+        <a href="admin.html" class="nav-admin-btn" id="nav-admin">⚙ Admin</a>
+      </nav>
+    </div>
+    <div class="film-strip" role="presentation" aria-hidden="true"></div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════
+       FILM HERO (dynamic background)
+  ══════════════════════════════════════════════════ -->
+  <div class="film-hero" id="film-hero">
+    <div class="film-hero-bg" id="film-hero-bg" aria-hidden="true"></div>
+    <div class="film-hero-content" id="film-hero-content">
+      <!-- Dynamic content injected by JS -->
+      <div class="loading-spinner" style="padding:4rem 0;">
+        <div class="spinner-reel" role="progressbar" aria-label="Carregando filme"></div>
+        <span class="loading-text">Carregando ficha técnica…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FILM DETAIL
+  ══════════════════════════════════════════════════ -->
+  <main id="film-main" style="display:none;" role="main">
+
+    <!-- Detail grid: sidebar + info -->
+    <div class="film-detail-grid">
+
+      <!-- ── Sidebar ── -->
+      <aside class="film-sidebar" aria-label="Visualização e capa">
+
+        <!-- Tab bar for cover / 3D -->
+        <div class="viewer-tabs" role="tablist" aria-label="Visualização">
+          <button class="viewer-tab active" id="tab-cover" role="tab" aria-selected="true" aria-controls="panel-cover">Capa</button>
+          <button class="viewer-tab" id="tab-3d" role="tab" aria-selected="false" aria-controls="panel-3d">Vista 3D</button>
+        </div>
+
+        <!-- Cover panel -->
+        <div id="panel-cover" role="tabpanel" aria-labelledby="tab-cover">
+          <img class="film-main-cover" id="film-cover-img" src="" alt="" />
+        </div>
+
+        <!-- 3D Viewer panel -->
+        <div id="panel-3d" role="tabpanel" aria-labelledby="tab-3d" style="display:none;">
+          <div class="viewer-3d-container" id="viewer-3d-container" aria-label="Visualizador 3D interativo — arraste para girar">
+            <!-- THREE.js canvas injected here -->
+          </div>
+          <span class="viewer-3d-label">✦ Arraste para girar ✦</span>
+        </div>
+
+        <!-- Rating panel -->
+        <div class="rating-panel" id="rating-panel">
+          <div class="rating-panel-header">Avaliação</div>
+          <div id="my-rating-block"></div>
+          <div class="community-rating" id="community-rating" style="display:none;">
+            <div>
+              <div style="font-family:var(--font-marquee);font-size:.6rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:.25rem">Comunidade</div>
+              <div id="community-stars"></div>
+            </div>
+            <div style="text-align:right;">
+              <div id="community-count" style="font-family:var(--font-marquee);font-size:.6rem;color:var(--muted);"></div>
+              <div id="community-avg" style="font-family:var(--font-display);font-size:1.5rem;font-weight:900;color:var(--gold-dark);"></div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- ── Film Info ── -->
+      <section class="film-info-section" id="film-info" aria-label="Informações do filme">
+        <!-- Injected by JS -->
+      </section>
+
+    </div>
+
+    <!-- ── Trailer ── -->
+    <div id="trailer-section" style="display:none; max-width:1200px;margin:0 auto;padding:0 2rem 3rem;">
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <span class="section-label">Assista ao</span>
+        <h2 class="section-title" style="font-size:clamp(1.4rem,3vw,2.2rem)">Trailer</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="trailer-wrap" id="trailer-wrap"></div>
+    </div>
+
+    <!-- ── Comments ── -->
+    <div style="max-width:1200px;margin:0 auto;padding:0 2rem 4rem;">
+      <div class="comments-section" id="comments-section">
+        <div class="section-header" style="margin-bottom:1.5rem;text-align:left;">
+          <span class="section-label">O que dizem</span>
+          <h2 class="section-title" style="font-size:clamp(1.4rem,3vw,2.2rem)">Comentários</h2>
+        </div>
+
+        <!-- Comment Form -->
+        <div class="comment-form">
+          <form id="comment-form" novalidate>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="form-group">
+                <label class="form-label" for="comment-name">Seu nome</label>
+                <input type="text" id="comment-name" class="form-input" required placeholder="ex: Cinéfilo Anônimo" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="comment-rating-container">Sua nota</label>
+                <div id="comment-rating-container"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="comment-text">Comentário</label>
+              <textarea id="comment-text" class="form-textarea" rows="4" placeholder="O que você achou deste filme?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" id="comment-submit-btn">✦ Enviar Comentário</button>
+          </form>
+        </div>
+
+        <!-- Comment list -->
+        <div id="comments-list">
+          <div class="loading-spinner">
+            <div class="spinner-reel"></div>
+            <span class="loading-text">Carregando comentários…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-logo">Cinemateca Pessoal</div>
+    <div class="footer-divider" aria-hidden="true"></div>
+    <p class="footer-text">Uma coleção de mídias físicas com amor pelo cinema</p>
+  </footer>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container" aria-live="assertive"></div>
+
+  <!-- ══════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Three.js entra como ES module: GLTFLoader, DRACOLoader e OrbitControls
+       saíram do bundle global no r148 e só existem em examples/jsm. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script src="js/config.js"></script>
+  <script src="js/rating.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script type="module" src="js/viewer3d.js"></script>
+  <script src="js/filme.js"></script>
+</body>
+</html>
