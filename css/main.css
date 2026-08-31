@@ -2499,3 +2499,331 @@ h1, h2, h3, h4, h5, h6 {
    reservando espaco no fim da colecao. */
 .pagination:empty,
 .semanas-nav:empty { display: none !important; }
+
+
+/* ============================================================
+   24. RECOMENDAÇÃO — cartaz, ficha e ingressos
+   ============================================================ */
+
+/* ── O modal: cartaz na frente, ficha no verso ───────────── */
+.rec-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(15, 6, 3, 0.94);
+  overflow-y: auto;
+}
+
+.rec-modal.aberto { display: flex; }
+
+.rec-palco {
+  perspective: 2000px;
+  width: 100%;
+  max-width: 460px;
+  margin: auto;
+}
+
+/* A carta que gira: cartaz de um lado, ficha do outro */
+.rec-carta {
+  position: relative;
+  width: 100%;
+  transition: transform 0.75s cubic-bezier(0.4, 0.1, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.rec-carta.virada { transform: rotateY(180deg); }
+
+.rec-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rec-face-verso {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  overflow-y: auto;
+}
+
+/* Enquanto está no cartaz, o verso não deve empurrar a altura */
+.rec-carta:not(.virada) .rec-face-verso { pointer-events: none; }
+
+/* ── Frente: o cartaz ────────────────────────────────────── */
+.rec-cartaz {
+  position: relative;
+  cursor: pointer;
+  border: 3px solid var(--gold-dark);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 30px 70px rgba(0,0,0,0.6);
+  background: var(--mahogany-dark);
+}
+
+.rec-cartaz img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.rec-cartaz-dica {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: var(--space-5) var(--space-4) var(--space-3);
+  background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent);
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  text-align: center;
+}
+
+.rec-cartaz:hover .rec-cartaz-dica { color: #fff; }
+
+/* ── Verso: a ficha ──────────────────────────────────────── */
+.rec-ficha {
+  background: var(--cream-light);
+  border: 3px solid var(--gold-dark);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+  padding: var(--space-6);
+}
+
+.rec-ficha-titulo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--charcoal);
+  line-height: 1.1;
+}
+
+.rec-ficha-original {
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: var(--space-4);
+}
+
+.rec-ficha-sinopse {
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--charcoal-mid);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.rec-secao-titulo {
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--parchment);
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+/* ── O ingresso de cinema ────────────────────────────────── */
+.ingressos { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.ingresso {
+  --entalhe: 11px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+  text-decoration: none;
+  background: #f3e4c0;
+  color: var(--charcoal);
+  border: 1px solid #c9ad76;
+  /* Os entalhes laterais que a bilheteria deixava ao destacar o canhoto */
+  -webkit-mask:
+    radial-gradient(circle var(--entalhe) at 0 50%, transparent 98%, #000 100%),
+    radial-gradient(circle var(--entalhe) at 100% 50%, transparent 98%, #000 100%);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle var(--entalhe) at 0 50%, transparent 98%, #000 100%),
+    radial-gradient(circle var(--entalhe) at 100% 50%, transparent 98%, #000 100%);
+  mask-composite: intersect;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.ingresso:hover {
+  transform: translateX(4px) rotate(-0.4deg);
+  filter: brightness(1.05);
+}
+
+.ingresso-corpo {
+  padding: var(--space-3) var(--space-4);
+  min-width: 0;
+}
+
+.ingresso-cabecalho {
+  font-family: var(--font-marquee);
+  font-size: 0.5rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #9a7c42;
+  margin-bottom: 3px;
+}
+
+.ingresso-plataforma {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ingresso-obs {
+  font-family: var(--font-marquee);
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* O canhoto, separado pela linha picotada */
+.ingresso-canhoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px dashed #c9ad76;
+  background: rgba(201, 173, 118, 0.16);
+  text-align: center;
+}
+
+.ingresso-canhoto-acao {
+  font-family: var(--font-marquee);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red-cinema);
+}
+
+.ingresso-serie {
+  font-family: var(--font-marquee);
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+  color: #9a7c42;
+}
+
+/* ── Comentários dentro da ficha ─────────────────────────── */
+.rec-comentarios { margin-top: var(--space-2); }
+
+.rec-form-nota {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.rec-lista-comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.rec-comentario {
+  background: var(--cream-dark);
+  border-left: 3px solid var(--gold-dark);
+  padding: var(--space-3) var(--space-4);
+}
+
+.rec-comentario-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.rec-comentario-autor {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+}
+
+.rec-comentario-data {
+  font-family: var(--font-marquee);
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.rec-comentario-texto {
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--charcoal-mid);
+}
+
+/* Botões de topo do modal */
+.rec-modal-acoes {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  z-index: 2;
+}
+
+.rec-modal-btn {
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--parchment);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--gold-dark);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.rec-modal-btn:hover { color: var(--gold-light); border-color: var(--gold); }
+
+@media (max-width: 560px) {
+  /* No celular a ficha e bem mais alta que o cartaz. Em vez de espremer
+     tudo num scroll interno de 500px, as faces se alternam e a pagina
+     rola normalmente. De quebra, sai o custo do 3D no mobile. */
+  .rec-carta { transform-style: flat; transition: none; }
+  .rec-carta.virada { transform: none; }
+  .rec-face-verso {
+    position: static;
+    transform: none;
+    display: none;
+    overflow: visible;
+  }
+  .rec-carta.virada .rec-face-frente { display: none; }
+  .rec-carta.virada .rec-face-verso  { display: block; }
+
+  .rec-modal { padding: var(--space-3); }
+  .rec-palco { max-width: 100%; }
+  .rec-ficha { padding: var(--space-4); }
+  .rec-ficha-titulo { font-size: 1.3rem; }
+  .ingresso { grid-template-columns: 1fr auto; }
+  .ingresso-corpo { padding: var(--space-3); }
+  .ingresso-canhoto { padding: var(--space-3) var(--space-3); }
+  .rec-modal-acoes { top: var(--space-2); right: var(--space-2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-carta { transition: none; }
+  .ingresso:hover { transform: none; }
+}

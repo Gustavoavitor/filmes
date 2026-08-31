@@ -1,20 +1,24 @@
 // ============================================================
 // CINEMATECA PESSOAL — recomendacoes.js
 // ============================================================
-// Depende de: config.js, supabase-client.js
+// Depende de: config.js, rating.js, supabase-client.js
+//
+// A grade mostra os cartazes. Clicar abre o cartaz em tamanho grande;
+// clicar no cartaz vira a carta e revela a ficha, com os ingressos de
+// "onde assistir" e os comentários de quem já viu.
 // ============================================================
 
 const SEM_DATA = 'sem-data';
 
-// Guarda as recomendações agrupadas por semana entre os renders.
 let recsPorSemana = {};
+let recAberta     = null;   // recomendação aberta no modal
+let notaWidget    = null;
 
 document.addEventListener('DOMContentLoaded', initRecsPage);
 
 async function initRecsPage() {
-  bindTrailerModal();
+  montarModal();
 
-  // Sem credenciais reais a requisição ficaria pendurada no DNS por minutos.
   if (configIncompleta()) {
     renderAviso('Configure o Supabase em js/config.js para carregar as recomendações.');
     return;
@@ -23,14 +27,12 @@ async function initRecsPage() {
   try {
     const recs = await fetchRecomendacoes();
 
-    // Agrupa por semana
     const porSemana = {};
     recs.forEach(r => {
       const semana = r.semana || SEM_DATA;
       (porSemana[semana] = porSemana[semana] || []).push(r);
     });
 
-    // Semanas mais recentes primeiro; "sem-data" sempre por último.
     const semanas = Object.keys(porSemana).sort((a, b) => {
       if (a === SEM_DATA) return 1;
       if (b === SEM_DATA) return -1;
@@ -69,15 +71,13 @@ function renderFeatured(rec) {
   const el = document.getElementById('featured-rec');
   if (!el || !rec) return;
 
-  const ytId = extractYouTubeId(rec.trailer_url);
-
   el.innerHTML = `
     <div class="rec-featured-inner animate-fade-in">
       <div style="position:relative;background:var(--mahogany-dark)">
         ${rec.capa_url
-          ? `<img src="${escapeHtml(rec.capa_url)}" alt="Capa de ${escapeHtml(rec.titulo)}" class="rec-featured-poster">`
+          ? `<img src="${escapeHtml(rec.capa_url)}" alt="Cartaz de ${escapeHtml(rec.titulo)}" class="rec-featured-poster">`
           : `<div class="card-poster-placeholder" style="height:100%;min-height:400px">
-               <span class="placeholder-icon">🌍</span>
+               <span class="placeholder-icon">🎞</span>
                <span class="placeholder-title">${escapeHtml(rec.titulo)}</span>
              </div>`}
       </div>
@@ -85,12 +85,9 @@ function renderFeatured(rec) {
       <div class="rec-featured-info">
         <div class="rec-featured-label">✦ Destaque da Semana ✦</div>
 
-        <h2 style="font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:900;font-style:italic;color:var(--charcoal);line-height:1.1;margin-bottom:var(--space-2)">
-          ${escapeHtml(rec.titulo)}
-        </h2>
+        <h2 class="rec-ficha-titulo">${escapeHtml(rec.titulo)}</h2>
         ${rec.titulo_original && rec.titulo_original !== rec.titulo
-          ? `<p style="font-family:var(--font-accent);font-style:italic;color:var(--muted);margin-bottom:var(--space-4)">${escapeHtml(rec.titulo_original)}</p>`
-          : ''}
+          ? `<p class="rec-ficha-original">${escapeHtml(rec.titulo_original)}</p>` : ''}
 
         <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-5)">
           ${rec.pais    ? `<span class="meta-tag">🌍 ${escapeHtml(rec.pais)}</span>` : ''}
@@ -99,29 +96,19 @@ function renderFeatured(rec) {
           ${listaDeTags(rec.generos)}
         </div>
 
-        ${rec.sinopse
-          ? `<p style="font-size:0.9rem;line-height:1.8;color:var(--charcoal-mid);font-style:italic;margin-bottom:var(--space-6);flex:1">${escapeHtml(rec.sinopse)}</p>`
-          : ''}
+        ${rec.sinopse ? `<p class="rec-ficha-sinopse" style="flex:1">${escapeHtml(rec.sinopse)}</p>` : ''}
 
-        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:auto">
-          ${rec.drive_url
-            ? `<a href="${escapeHtml(rec.drive_url)}" target="_blank" rel="noopener" class="drive-btn" style="flex:1;min-width:160px;width:auto">
-                 ${ICONE_DRIVE}
-                 Assistir no Drive
-               </a>`
-            : ''}
-          ${ytId
-            ? `<button type="button" class="btn btn-secondary"
-                       data-trailer="${escapeHtml(ytId)}" data-trailer-titulo="${escapeHtml(rec.titulo)}">
-                 ◎ Ver Trailer
-               </button>`
-            : ''}
+        <div style="margin-top:auto">
+          <button type="button" class="btn btn-primary" data-abrir-rec="${escapeHtml(rec.id)}"
+                  style="width:100%;justify-content:center">
+            ✦ Ver o cartaz e a ficha
+          </button>
         </div>
       </div>
     </div>`;
 }
 
-// ── Navegação de semanas + grid ───────────────────────────────
+// ── Navegação de semanas + grade de cartazes ──────────────────
 function renderSemanas(semanas, semanaAtual) {
   const navEl  = document.getElementById('semanas-nav');
   const gridEl = document.getElementById('recs-grid');
@@ -138,8 +125,7 @@ function renderSemanas(semanas, semanaAtual) {
 
     navEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-semana]');
-      if (!btn) return;
-      switchSemana(btn.dataset.semana, btn);
+      if (btn) switchSemana(btn.dataset.semana, btn);
     });
   }
 
@@ -153,7 +139,6 @@ function switchSemana(semana, btn) {
   const gridEl = document.getElementById('recs-grid');
   if (gridEl) renderRecGrid(recsPorSemana[semana], gridEl);
 
-  // Ao voltar a uma semana antiga, o destaque e o rótulo acompanham.
   const recs = recsPorSemana[semana] || [];
   if (recs.length) {
     renderHero(semana);
@@ -165,7 +150,7 @@ function renderRecGrid(recs, gridEl) {
   if (!recs || !recs.length) {
     gridEl.innerHTML = `
       <div class="empty-state" style="grid-column:1/-1">
-        <div class="empty-icon">🎬</div>
+        <div class="empty-icon">🎞</div>
         <p style="font-family:var(--font-marquee);font-size:0.7rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase">
           Nada nesta semana
         </p>
@@ -178,14 +163,15 @@ function renderRecGrid(recs, gridEl) {
 }
 
 function buildRecCard(rec) {
-  const ytId = extractYouTubeId(rec.trailer_url);
   return `
-    <div class="rec-card animate-fade-in-up">
+    <div class="rec-card animate-fade-in-up" role="button" tabindex="0"
+         data-abrir-rec="${escapeHtml(rec.id)}"
+         aria-label="Ver o cartaz de ${escapeHtml(rec.titulo)}">
       <div style="position:relative;aspect-ratio:2/3;overflow:hidden;background:var(--mahogany-dark)">
         ${rec.capa_url
-          ? `<img src="${escapeHtml(rec.capa_url)}" alt="Capa de ${escapeHtml(rec.titulo)}" class="rec-card-poster" loading="lazy">`
+          ? `<img src="${escapeHtml(rec.capa_url)}" alt="Cartaz de ${escapeHtml(rec.titulo)}" class="rec-card-poster" loading="lazy">`
           : `<div class="card-poster-placeholder" style="height:100%">
-               <span class="placeholder-icon">🌍</span>
+               <span class="placeholder-icon">🎞</span>
                <span class="placeholder-title">${escapeHtml(rec.titulo)}</span>
              </div>`}
         ${rec.destaque ? `<div class="card-format-badge">✦ Destaque</div>` : ''}
@@ -195,81 +181,294 @@ function buildRecCard(rec) {
           ${rec.pais ? `🌍 ${escapeHtml(rec.pais)}` : ''}${rec.ano ? ` · ${rec.ano}` : ''}
         </div>
         <h3 class="rec-card-title">${escapeHtml(rec.titulo)}</h3>
-        ${rec.titulo_original && rec.titulo_original !== rec.titulo
-          ? `<p style="font-family:var(--font-accent);font-size:0.75rem;font-style:italic;color:var(--muted);margin-bottom:var(--space-3)">${escapeHtml(rec.titulo_original)}</p>`
-          : ''}
-        ${rec.generos ? `<p style="font-size:0.75rem;color:var(--muted);margin-bottom:var(--space-3)">${escapeHtml(rec.generos)}</p>` : ''}
-        ${rec.sinopse
-          ? `<p style="font-size:0.78rem;line-height:1.6;color:var(--charcoal-mid);margin-bottom:var(--space-3);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(rec.sinopse)}</p>`
-          : ''}
-        <div style="display:flex;gap:var(--space-2);flex-direction:column">
-          ${rec.drive_url
-            ? `<a href="${escapeHtml(rec.drive_url)}" target="_blank" rel="noopener" class="drive-btn">
-                 ${ICONE_DRIVE}
-                 Assistir no Drive
-               </a>`
-            : ''}
-          ${ytId
-            ? `<button type="button" class="btn btn-secondary" style="width:100%;justify-content:center;font-size:0.6rem"
-                       data-trailer="${escapeHtml(ytId)}" data-trailer-titulo="${escapeHtml(rec.titulo)}">
-                 ◎ Trailer
-               </button>`
-            : ''}
-        </div>
+        ${rec.diretor ? `<p style="font-family:var(--font-marquee);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)">${escapeHtml(rec.diretor)}</p>` : ''}
       </div>
     </div>`;
 }
 
-// ── Modal de Trailer ──────────────────────────────────────────
-function bindTrailerModal() {
-  // Delegação: pega qualquer botão de trailer, inclusive os criados depois.
+// ══════════════════════════════════════════════════════════════
+// MODAL: cartaz de um lado, ficha do outro
+// ══════════════════════════════════════════════════════════════
+function montarModal() {
+  const modal = document.createElement('div');
+  modal.className = 'rec-modal';
+  modal.id = 'rec-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.innerHTML = `
+    <div class="rec-modal-acoes">
+      <button type="button" class="rec-modal-btn" id="rec-btn-virar">Ver a ficha</button>
+      <button type="button" class="rec-modal-btn" id="rec-btn-fechar">✕ Fechar</button>
+    </div>
+    <div class="rec-palco">
+      <div class="rec-carta" id="rec-carta">
+        <div class="rec-face rec-face-frente" id="rec-frente"></div>
+        <div class="rec-face rec-face-verso"  id="rec-verso"></div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  document.getElementById('rec-btn-fechar').addEventListener('click', fecharRec);
+  document.getElementById('rec-btn-virar').addEventListener('click', virarCarta);
+  modal.addEventListener('click', (e) => { if (e.target === modal) fecharRec(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharRec(); });
+
+  // Delegação: abre pelo card da grade e pelo botão do destaque.
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-trailer]');
-    if (btn) {
-      openTrailer(btn.dataset.trailer, btn.dataset.trailerTitulo || 'Trailer');
-      return;
-    }
-    // Clique no fundo escuro fecha
-    if (e.target === document.getElementById('trailer-modal')) closeTrailer();
+    const alvo = e.target.closest('[data-abrir-rec]');
+    if (alvo) abrirRec(alvo.dataset.abrirRec);
   });
-
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeTrailer();
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const alvo = e.target.closest?.('[data-abrir-rec]');
+    if (alvo) { e.preventDefault(); abrirRec(alvo.dataset.abrirRec); }
   });
 }
 
-function openTrailer(ytId, titulo) {
-  const modal   = document.getElementById('trailer-modal');
-  const iframe  = document.getElementById('trailer-iframe');
-  const titleEl = document.getElementById('trailer-modal-title');
-  if (!modal || !iframe) return;
-
-  iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0&modestbranding=1`;
-  if (titleEl) titleEl.textContent = titulo;
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  modal.querySelector('.trailer-modal-close')?.focus();
+function acharRec(id) {
+  for (const lista of Object.values(recsPorSemana)) {
+    const achou = lista.find(r => r.id === id);
+    if (achou) return achou;
+  }
+  return null;
 }
 
-function closeTrailer() {
-  const modal  = document.getElementById('trailer-modal');
-  const iframe = document.getElementById('trailer-iframe');
-  if (!modal || modal.style.display !== 'flex') return;
-  modal.style.display = 'none';
-  iframe.src = 'about:blank';            // interrompe a reprodução
+function abrirRec(id) {
+  const rec = acharRec(id);
+  if (!rec) return;
+  recAberta = rec;
+
+  document.getElementById('rec-frente').innerHTML = `
+    <div class="rec-cartaz" id="rec-cartaz" role="button" tabindex="0"
+         aria-label="Clique no cartaz para ver a ficha">
+      ${rec.capa_url
+        ? `<img src="${escapeHtml(rec.capa_url)}" alt="Cartaz de ${escapeHtml(rec.titulo)}">`
+        : `<div class="card-poster-placeholder" style="aspect-ratio:2/3">
+             <span class="placeholder-icon">🎞</span>
+             <span class="placeholder-title">${escapeHtml(rec.titulo)}</span>
+           </div>`}
+      <div class="rec-cartaz-dica">✦ &nbsp; Clique no cartaz para ver a ficha &nbsp; ✦</div>
+    </div>`;
+
+  const cartaz = document.getElementById('rec-cartaz');
+  cartaz.addEventListener('click', virarCarta);
+  cartaz.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); virarCarta(); }
+  });
+
+  renderFicha(rec);
+
+  document.getElementById('rec-carta').classList.remove('virada');
+  document.getElementById('rec-btn-virar').textContent = 'Ver a ficha';
+
+  document.getElementById('rec-modal').classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+
+  carregarComentariosRec(rec.id);
+}
+
+function fecharRec() {
+  const modal = document.getElementById('rec-modal');
+  if (!modal?.classList.contains('aberto')) return;
+  modal.classList.remove('aberto');
   document.body.style.overflow = '';
+  recAberta = null;
+}
+
+function virarCarta() {
+  const carta = document.getElementById('rec-carta');
+  const virada = carta.classList.toggle('virada');
+  document.getElementById('rec-btn-virar').textContent = virada ? 'Ver o cartaz' : 'Ver a ficha';
+}
+
+// ── O verso: ficha + ingressos + comentários ──────────────────
+function renderFicha(rec) {
+  document.getElementById('rec-verso').innerHTML = `
+    <div class="rec-ficha">
+      <h2 class="rec-ficha-titulo">${escapeHtml(rec.titulo)}</h2>
+      ${rec.titulo_original && rec.titulo_original !== rec.titulo
+        ? `<p class="rec-ficha-original">${escapeHtml(rec.titulo_original)}</p>` : ''}
+
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">
+        ${rec.ano     ? `<span class="meta-tag">${rec.ano}</span>` : ''}
+        ${rec.diretor ? `<span class="meta-tag">${escapeHtml(rec.diretor)}</span>` : ''}
+        ${rec.pais    ? `<span class="meta-tag">🌍 ${escapeHtml(rec.pais)}</span>` : ''}
+        ${listaDeTags(rec.generos)}
+      </div>
+
+      ${rec.sinopse ? `<p class="rec-ficha-sinopse">${escapeHtml(rec.sinopse)}</p>` : ''}
+
+      <div class="rec-secao-titulo">Onde assistir</div>
+      <div class="ingressos">${montarIngressos(rec)}</div>
+
+      <div class="rec-secao-titulo">Já viu? Deixe sua nota</div>
+      <div class="rec-comentarios">
+        <form id="rec-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="rec-nome">Seu nome</label>
+            <input type="text" id="rec-nome" class="form-input" required placeholder="ex: Cinéfilo Anônimo" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sua nota</label>
+            <div class="rec-form-nota"><div id="rec-nota"></div></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rec-texto">Comentário</label>
+            <textarea id="rec-texto" class="form-textarea" rows="3" placeholder="O que achou do filme?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="rec-enviar"
+                  style="width:100%;justify-content:center">✦ Enviar</button>
+        </form>
+        <div class="rec-lista-comentarios" id="rec-lista"></div>
+      </div>
+    </div>`;
+
+  notaWidget = new StarRating(document.getElementById('rec-nota'), {
+    value: 0, readOnly: false, size: 26, tema: rec.tema_estrelas || null,
+  });
+
+  document.getElementById('rec-form').addEventListener('submit', enviarComentarioRec);
+}
+
+// ── Ingressos de "onde assistir" ──────────────────────────────
+// Lê a coluna onde_assistir (JSON) e, por retrocompatibilidade, os
+// campos antigos drive_url e trailer_url.
+function fontesDe(rec) {
+  const lista = [];
+
+  let json = rec.onde_assistir;
+  if (typeof json === 'string') {
+    try { json = JSON.parse(json); } catch { json = null; }
+  }
+  if (Array.isArray(json)) {
+    json.forEach(f => {
+      if (f?.url) lista.push({ plataforma: f.plataforma || 'Assistir', url: f.url, obs: f.obs || '' });
+    });
+  }
+
+  if (rec.drive_url && !lista.some(f => f.url === rec.drive_url)) {
+    lista.push({ plataforma: 'Google Drive', url: rec.drive_url, obs: '' });
+  }
+  if (rec.trailer_url && !lista.some(f => f.url === rec.trailer_url)) {
+    lista.push({ plataforma: 'Trailer', url: rec.trailer_url, obs: 'apenas o trailer' });
+  }
+
+  return lista;
+}
+
+function montarIngressos(rec) {
+  const fontes = fontesDe(rec);
+  if (!fontes.length) {
+    return `<p style="font-family:var(--font-marquee);font-size:0.6rem;letter-spacing:0.18em;
+                     text-transform:uppercase;color:var(--muted)">
+              Nenhum link cadastrado ainda
+            </p>`;
+  }
+
+  return fontes.map((f, i) => `
+    <a class="ingresso" href="${escapeHtml(f.url)}" target="_blank" rel="noopener">
+      <span class="ingresso-corpo">
+        <span class="ingresso-cabecalho">Sessão · admite um</span>
+        <span class="ingresso-plataforma">${escapeHtml(f.plataforma)}</span>
+        ${f.obs ? `<span class="ingresso-obs">${escapeHtml(f.obs)}</span>` : ''}
+      </span>
+      <span class="ingresso-canhoto">
+        <span class="ingresso-canhoto-acao">Assistir</span>
+        <span class="ingresso-serie">Nº ${String(i + 1).padStart(3, '0')}</span>
+      </span>
+    </a>`).join('');
+}
+
+// ── Comentários da recomendação ───────────────────────────────
+async function carregarComentariosRec(recId) {
+  const lista = document.getElementById('rec-lista');
+  if (!lista) return;
+  try {
+    renderComentariosRec(await fetchComentariosRec(recId));
+  } catch (err) {
+    console.error(err);
+    lista.innerHTML = '';
+  }
+}
+
+function renderComentariosRec(comentarios) {
+  const lista = document.getElementById('rec-lista');
+  if (!lista) return;
+
+  if (!comentarios.length) {
+    lista.innerHTML = `
+      <p style="font-family:var(--font-marquee);font-size:0.58rem;letter-spacing:0.18em;
+                text-transform:uppercase;color:var(--muted);text-align:center;padding:var(--space-4) 0">
+        Ninguém comentou ainda
+      </p>`;
+    return;
+  }
+
+  lista.innerHTML = '';
+  comentarios.forEach(c => {
+    const data = new Date(c.created_at).toLocaleDateString('pt-BR', {
+      day: '2-digit', month: 'short', year: 'numeric',
+    });
+
+    const div = document.createElement('div');
+    div.className = 'rec-comentario';
+    div.innerHTML = `
+      <div class="rec-comentario-topo">
+        <span class="rec-comentario-autor">${escapeHtml(c.nome)}</span>
+        <span class="rec-comentario-data">${data}</span>
+      </div>
+      <div class="rec-comentario-estrelas"></div>
+      ${c.comentario ? `<p class="rec-comentario-texto">${escapeHtml(c.comentario)}</p>` : ''}`;
+    lista.appendChild(div);
+
+    if (c.nota) {
+      renderStars(div.querySelector('.rec-comentario-estrelas'),
+                  Number(c.nota), 14, recAberta?.tema_estrelas || null);
+    }
+  });
+}
+
+async function enviarComentarioRec(e) {
+  e.preventDefault();
+  if (!recAberta) return;
+
+  const nome  = document.getElementById('rec-nome').value.trim();
+  const texto = document.getElementById('rec-texto').value.trim();
+  const nota  = notaWidget?.getValue() || 0;
+  const btn   = document.getElementById('rec-enviar');
+
+  if (!nome) { showToast('Por favor, insira seu nome.', 'error'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  try {
+    await inserirComentarioRec({
+      recId: recAberta.id, nome, nota: nota || null, comentario: texto || null,
+    });
+    showToast('Comentário enviado!', 'success');
+    e.target.reset();
+    notaWidget.setValue(0);
+    await carregarComentariosRec(recAberta.id);
+  } catch (err) {
+    console.error(err);
+    showToast('Erro ao enviar comentário.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ Enviar';
+  }
 }
 
 // ── Estados vazios / aviso ────────────────────────────────────
 function renderEmpty() {
-  renderAviso('Nenhuma recomendação ainda. Adicione pelo painel de administração.');
+  renderAviso('Nenhuma recomendação ainda. Adicione pelo painel do Supabase.');
 }
 
 function renderAviso(msg) {
   const featured = document.getElementById('featured-rec');
   if (featured) featured.innerHTML = `
     <div class="empty-state">
-      <div class="empty-icon">🎬</div>
+      <div class="empty-icon">🎞</div>
       <p style="font-family:var(--font-marquee);font-size:0.75rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase">
         ${escapeHtml(msg)}
       </p>
@@ -299,8 +498,3 @@ function formatarSemanaCurta(iso) {
   return new Date(iso + 'T12:00:00')
     .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
-
-const ICONE_DRIVE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 18l-5-8.66L8.5 1h7l5 8.66-5 8.66H8.5z" opacity=".5"/><path d="M1.5 14.34L6.5 6h11l-5 8.66H1.5z" opacity=".7"/><path d="M8.5 18h7l2.5-4.34H6L8.5 18z"/></svg>`;
-
-window.openTrailer  = openTrailer;
-window.closeTrailer = closeTrailer;

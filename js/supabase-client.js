@@ -71,6 +71,27 @@ async function inserirComentario({ filmeId, nome, nota, comentario }) {
   return data;
 }
 
+// A mesma tabela de comentários serve aos dois acervos: um comentário tem
+// filme_id OU recomendacao_id preenchido, nunca os dois.
+async function fetchComentariosRec(recId) {
+  const { data, error } = await getSupabase()
+    .from('comentarios')
+    .select('*')
+    .eq('recomendacao_id', recId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+async function inserirComentarioRec({ recId, nome, nota, comentario }) {
+  const { data, error } = await getSupabase()
+    .from('comentarios')
+    .insert([{ recomendacao_id: recId, nome, nota, comentario }])
+    .select().single();
+  if (error) throw error;
+  return data;
+}
+
 // ── Recomendações ─────────────────────────────────────────────
 async function fetchRecomendacoes() {
   const { data, error } = await getSupabase()
