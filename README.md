@@ -94,6 +94,12 @@ npx --yes serve --listen 4173 .
 
 Depois acesse <http://localhost:4173>. O painel fica em `/admin.html`.
 
+O [`serve.json`](serve.json) existe por causa de um detalhe: por padrão o
+`serve` redireciona `/filme.html?id=X` para `/filme` e **descarta a query
+string**, o que faria todo clique num filme voltar para a coleção. A Vercel
+não faz isso. O arquivo desliga esse comportamento para que o ambiente local
+se comporte como a produção.
+
 ## Estrutura
 
 ```
@@ -113,7 +119,11 @@ js/
   admin.js              Painel de administração
   rating.js             Widget de estrelas (0,5 a 5,0)
   viewer3d.js           Visualizador 3D (módulo ES, importa o three.js)
+  caixa3d.js            Embalagem 3D compartilhada (grade + fallback da ficha)
+  capa3d.js             Capas 3D nos cards da coleção
+  projecao.js           Transição de projeção 35mm ao abrir um filme
 assets/modelos3d/       Arquivos .glb das embalagens
+serve.json              Config do servidor local (ver acima)
 supabase-schema.sql     Schema do banco
 ```
 

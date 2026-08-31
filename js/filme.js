@@ -133,36 +133,32 @@ function renderSidebar(f) {
   // Tab listeners
   document.getElementById('tab-cover').addEventListener('click', () => switchTab('cover'));
   document.getElementById('tab-3d').addEventListener('click', () => switchTab('3d'));
+  prepararAbaTrailer(f);
 
   // My rating
   renderMyRating(f);
-
-  // Trailer
-  if (f.trailer_url) {
-    renderTrailer(f.trailer_url);
-  }
 }
 
-function switchTab(which) {
-  const coverPanel = document.getElementById('panel-cover');
-  const panel3d    = document.getElementById('panel-3d');
-  const tabCover   = document.getElementById('tab-cover');
-  const tab3d      = document.getElementById('tab-3d');
+const ABAS = ['cover', '3d', 'trailer'];
 
-  if (which === 'cover') {
-    coverPanel.style.display = 'block';
-    panel3d.style.display    = 'none';
-    tabCover.classList.add('active');  tabCover.setAttribute('aria-selected','true');
-    tab3d.classList.remove('active');  tab3d.setAttribute('aria-selected','false');
-  } else {
-    coverPanel.style.display = 'none';
-    panel3d.style.display    = 'block';
-    tabCover.classList.remove('active'); tabCover.setAttribute('aria-selected','false');
-    tab3d.classList.add('active');       tab3d.setAttribute('aria-selected','true');
+function switchTab(qual) {
+  ABAS.forEach(nome => {
+    const ativa  = nome === qual;
+    const painel = document.getElementById(`panel-${nome}`);
+    const aba    = document.getElementById(`tab-${nome === 'cover' ? 'cover' : nome}`);
+    if (painel) painel.style.display = ativa ? 'block' : 'none';
+    if (aba) {
+      aba.classList.toggle('active', ativa);
+      aba.setAttribute('aria-selected', String(ativa));
+    }
+  });
 
-    // Init 3D viewer lazily
-    if (!viewer3d && !iniciando3d && filmeData) iniciarViewer3d();
-  }
+  // O visualizador é pesado: só monta quando a aba é aberta de fato.
+  if (qual === '3d' && !viewer3d && !iniciando3d && filmeData) iniciarViewer3d();
+
+  // O iframe do YouTube também só entra quando alguém pede o trailer.
+  if (qual === 'trailer') montarTrailer();
+  else pausarTrailer();
 }
 
 // O viewer é pesado (three.js + o GLB), então só monta quando a aba é aberta.
@@ -238,19 +234,82 @@ function renderMyRating(f) {
   }
 }
 
-function renderTrailer(trailerUrl) {
-  const section = document.getElementById('trailer-section');
-  const wrap    = document.getElementById('trailer-wrap');
-  section.style.display = 'block';
+// ── Trailer ───────────────────────────────────────────────────
+let trailerMontado = false;
 
-  // Convert YouTube watch URLs to embed
-  let embedUrl = trailerUrl;
-  const ytMatch = trailerUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)/);
-  if (ytMatch) {
-    embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
-  }
+function urlDeEmbed(trailerUrl) {
+  const id = extractYouTubeId(trailerUrl);
+  // enablejsapi permite mandar "pause" pelo postMessage quando a aba muda.
+  return id
+    ? `https://www.youtube.com/embed/${encodeURIComponent(id)}?rel=0&modestbranding=1&enablejsapi=1`
+    : trailerUrl;              // link direto de outra origem
+}
 
-  wrap.innerHTML = `<iframe src="${embedUrl}" allowfullscreen title="Trailer de ${filmeData.titulo}" loading="lazy"></iframe>`;
+// Esconder o painel não interrompe o áudio do YouTube; é preciso pedir.
+function pausarTrailer() {
+  document.querySelectorAll('#trailer-sidebar-wrap iframe, #trailer-iframe').forEach(ifr => {
+    try {
+      ifr.contentWindow?.postMessage(
+        '{"event":"command","func":"pauseVideo","args":""}', '*'
+      );
+    } catch { /* origem cruzada sem jsapi: nada a fazer */ }
+  });
+}
+
+// Prepara a aba: sem trailer cadastrado, ela some da barra.
+// Esconde em vez de remover — assim a função é idempotente e a aba volta
+// se o filme for recarregado com um trailer.
+function prepararAbaTrailer(f) {
+  const aba = document.getElementById('tab-trailer');
+  if (!aba) return;
+
+  if (!f.trailer_url) { aba.style.display = 'none'; return; }
+  aba.style.display = '';
+  aba.addEventListener('click', () => switchTab('trailer'));
+
+  const btnGrande = document.getElementById('btn-trailer-grande');
+  btnGrande.style.display = 'inline-flex';
+  btnGrande.addEventListener('click', abrirTrailerModal);
+
+  document.getElementById('btn-fechar-trailer')
+    ?.addEventListener('click', fecharTrailerModal);
+
+  document.getElementById('trailer-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'trailer-modal') fecharTrailerModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fecharTrailerModal();
+  });
+}
+
+function montarTrailer() {
+  if (trailerMontado || !filmeData?.trailer_url) return;
+  trailerMontado = true;
+  document.getElementById('trailer-sidebar-wrap').innerHTML =
+    `<iframe src="${escapeHtml(urlDeEmbed(filmeData.trailer_url))}" allowfullscreen
+             title="Trailer de ${escapeHtml(filmeData.titulo)}" loading="lazy"></iframe>`;
+}
+
+function abrirTrailerModal() {
+  const modal  = document.getElementById('trailer-modal');
+  const iframe = document.getElementById('trailer-iframe');
+  if (!modal || !iframe || !filmeData?.trailer_url) return;
+
+  iframe.src = urlDeEmbed(filmeData.trailer_url) + '&autoplay=1';
+  document.getElementById('trailer-modal-title').textContent = filmeData.titulo;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('btn-fechar-trailer')?.focus();
+}
+
+function fecharTrailerModal() {
+  const modal  = document.getElementById('trailer-modal');
+  const iframe = document.getElementById('trailer-iframe');
+  if (!modal || modal.style.display !== 'flex') return;
+  modal.style.display = 'none';
+  iframe.src = 'about:blank';        // interrompe a reprodução
+  document.body.style.overflow = '';
 }
 
 // ── Render comments ───────────────────────────────────────────

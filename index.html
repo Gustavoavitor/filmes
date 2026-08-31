@@ -135,9 +135,21 @@
        SCRIPTS
   ══════════════════════════════════════════════════ -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- As capas dos cards são renderizadas em WebGL (js/capa3d.js). -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <script src="js/config.js"></script>
   <script src="js/rating.js"></script>
   <script src="js/supabase-client.js"></script>
+  <script src="js/projecao.js"></script>
+  <script type="module" src="js/capa3d.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

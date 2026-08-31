@@ -130,9 +130,12 @@ function createCard(filme) {
       </div>`;
   }
 
+  // O slot vem antes do pôster: o canvas 3D cobre a imagem, que fica de
+  // fallback enquanto o WebGL não sobe (ou se não houver suporte).
   card.innerHTML = `
     <div class="film-card-inner">
       <div class="card-poster-wrap">
+        <div class="capa3d-slot"></div>
         ${posterHTML}
         <span class="card-format-badge">${formatoBadge}</span>
         <div class="card-overlay">
@@ -140,18 +143,33 @@ function createCard(filme) {
         </div>
       </div>
       <div class="card-body">
-        <h2 class="card-title">${filme.titulo}</h2>
-        <p class="card-year">${[filme.diretor, filme.ano].filter(Boolean).join(' · ')}</p>
+        <h2 class="card-title">${escapeHtml(filme.titulo)}</h2>
+        <p class="card-year">${escapeHtml([filme.diretor, filme.ano].filter(Boolean).join(' · '))}</p>
         ${starsHTML}
       </div>
     </div>
   `;
 
+  // A transição de projeção (js/projecao.js) intercepta este atributo.
+  card.dataset.filmeId = filme.id;
+
   const go = () => {
-    window.location.href = `filme.html?id=${filme.id}`;
+    if (window.projetarE) window.projetarE(`filme.html?id=${filme.id}`);
+    else window.location.href = `filme.html?id=${filme.id}`;
   };
   card.addEventListener('click', go);
   card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') go(); });
+
+  // Capa em 3D. O gerenciador liga só o que está visível.
+  if (window.galeriaCapas3D && window.suporteWebGL) {
+    window.galeriaCapas3D.registrar(card.querySelector('.capa3d-slot'), {
+      formato:         filme.formato,
+      titulo:          filme.titulo,
+      capaUrl:         filme.capa_url || null,
+      capaTraseiraUrl: filme.capa_traseira_url || null,
+      corSpine:        filme.cor_spine || '#1a1a1a',
+    });
+  }
 
   return card;
 }
@@ -159,6 +177,11 @@ function createCard(filme) {
 // ── Render grid ───────────────────────────────────────────────
 function renderGrid() {
   const grid = document.getElementById('films-grid');
+
+  // Descarta as capas 3D da página anterior — cada uma segura um contexto
+  // WebGL, e o navegador só permite um punhado deles vivos ao mesmo tempo.
+  window.galeriaCapas3D?.limpar();
+
   grid.innerHTML = '';
 
   const start = (currentPage - 1) * PER_PAGE;

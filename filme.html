@@ -60,6 +60,7 @@
         <div class="viewer-tabs" role="tablist" aria-label="Visualização">
           <button class="viewer-tab active" id="tab-cover" role="tab" aria-selected="true" aria-controls="panel-cover">Capa</button>
           <button class="viewer-tab" id="tab-3d" role="tab" aria-selected="false" aria-controls="panel-3d">Vista 3D</button>
+          <button class="viewer-tab" id="tab-trailer" role="tab" aria-selected="false" aria-controls="panel-trailer">Trailer</button>
         </div>
 
         <!-- Cover panel -->
@@ -73,6 +74,15 @@
             <!-- THREE.js canvas injected here -->
           </div>
           <span class="viewer-3d-label">✦ Arraste para girar ✦</span>
+        </div>
+
+        <!-- Trailer panel -->
+        <div id="panel-trailer" role="tabpanel" aria-labelledby="tab-trailer" style="display:none;">
+          <div class="trailer-wrap" id="trailer-sidebar-wrap"></div>
+          <button type="button" class="btn btn-secondary" id="btn-trailer-grande"
+                  style="width:100%;justify-content:center;margin-top:.75rem;font-size:.6rem;display:none">
+            ⛶ Ver em tela cheia
+          </button>
         </div>
 
         <!-- Rating panel -->
@@ -98,16 +108,6 @@
         <!-- Injected by JS -->
       </section>
 
-    </div>
-
-    <!-- ── Trailer ── -->
-    <div id="trailer-section" style="display:none; max-width:1200px;margin:0 auto;padding:0 2rem 3rem;">
-      <div class="section-header" style="margin-bottom:1.5rem;">
-        <span class="section-label">Assista ao</span>
-        <h2 class="section-title" style="font-size:clamp(1.4rem,3vw,2.2rem)">Trailer</h2>
-        <div class="section-divider"></div>
-      </div>
-      <div class="trailer-wrap" id="trailer-wrap"></div>
     </div>
 
     <!-- ── Comments ── -->
@@ -152,6 +152,21 @@
   </main>
 
   <!-- ══════════════════════════════════════════════════
+       MODAL DE TRAILER
+  ══════════════════════════════════════════════════ -->
+  <div class="trailer-modal" id="trailer-modal" role="dialog" aria-modal="true" aria-labelledby="trailer-modal-title">
+    <div class="trailer-modal-inner">
+      <div class="trailer-modal-header">
+        <span class="trailer-modal-title" id="trailer-modal-title">Trailer</span>
+        <button type="button" class="trailer-modal-close" id="btn-fechar-trailer" aria-label="Fechar trailer">✕ Fechar</button>
+      </div>
+      <div class="trailer-modal-body">
+        <iframe id="trailer-iframe" src="" title="Trailer" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
        FOOTER
   ══════════════════════════════════════════════════ -->
   <footer class="site-footer" role="contentinfo">
@@ -182,6 +197,7 @@
   <script src="js/config.js"></script>
   <script src="js/rating.js"></script>
   <script src="js/supabase-client.js"></script>
+  <script src="js/projecao.js"></script>
   <script type="module" src="js/viewer3d.js"></script>
   <script src="js/filme.js"></script>
 </body>

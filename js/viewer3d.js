@@ -13,6 +13,7 @@ import * as THREE from 'three';
 import { GLTFLoader }   from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader }  from 'three/addons/loaders/DRACOLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { criarCaixaEmbalagem, iluminacaoCinematica } from './caixa3d.js';
 
 export class Viewer3D {
   /**
@@ -84,28 +85,9 @@ export class Viewer3D {
 
   // ── Iluminação cinemática ────────────────────────────────
   _setupLighting() {
-    // Luz ambiente quente (estilo projetor de cinema)
-    this.scene.add(new THREE.AmbientLight(0xffe8d0, 0.6));
+    iluminacaoCinematica(this.scene);
 
-    // Luz principal (key light)
-    const key = new THREE.DirectionalLight(0xfffaf0, 1.4);
-    key.position.set(3, 5, 4);
-    key.castShadow = true;
-    key.shadow.mapSize.width  = 1024;
-    key.shadow.mapSize.height = 1024;
-    this.scene.add(key);
-
-    // Luz de preenchimento (dourada, lateral)
-    const fill = new THREE.DirectionalLight(0xc8a050, 0.5);
-    fill.position.set(-4, 1, 2);
-    this.scene.add(fill);
-
-    // Luz de contorno (rim light — atrás)
-    const rim = new THREE.DirectionalLight(0xe8d8c0, 0.3);
-    rim.position.set(0, -2, -4);
-    this.scene.add(rim);
-
-    // Chão para sombra sutil
+    // Chão só para receber a sombra do modelo.
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(20, 20),
       new THREE.ShadowMaterial({ opacity: 0.18 })
@@ -217,25 +199,15 @@ export class Viewer3D {
     this.scene.add(this.modelGroup);
   }
 
-  // ── Fallback: box geométrico com textura da capa ─────────
+  // ── Fallback: a embalagem montada em geometria, com a capa ──
   _buildBoxFallback() {
-    const dim = this.opts.formato === 'bluray'
-      ? { w: 1.2,  h: 1.72, d: 0.13 }
-      : { w: 1.35, h: 1.9,  d: 0.14 };
-
-    const geo    = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
-    const loader = new THREE.TextureLoader();
-    const dark   = new THREE.MeshLambertMaterial({ color: new THREE.Color(this.opts.corSpine) });
-
-    const materials = [
-      new THREE.MeshLambertMaterial({ map: this._buildSpineTex(dim) }), // +x lombada
-      dark, dark, dark,                                                 // -x, +y, -y
-      this._buildFaceMat(loader, this.opts.capaUrl, 'front'),           // +z frente
-      this._buildFaceMat(loader, this.opts.capaTraseiraUrl, 'back'),    // -z verso
-    ];
-
-    const mesh = new THREE.Mesh(geo, materials);
-    mesh.castShadow = true;
+    const { mesh, dim } = criarCaixaEmbalagem({
+      formato:         this.opts.formato,
+      titulo:          this.opts.titulo,
+      capaUrl:         this.opts.capaUrl,
+      capaTraseiraUrl: this.opts.capaTraseiraUrl,
+      corSpine:        this.opts.corSpine,
+    });
 
     this.modelGroup = new THREE.Group();
     this.modelGroup.add(mesh);
@@ -250,79 +222,6 @@ export class Viewer3D {
     this.controls.maxDistance = 8;
     this.controls.target.set(0, 0, 0);
     this.controls.update();
-  }
-
-  _buildSpineTex(dim) {
-    const canvas = document.createElement('canvas');
-    canvas.width  = 64;
-    canvas.height = Math.round((dim.h / dim.d) * 64);
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = this.opts.corSpine;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(32, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#e8dec8';
-    ctx.font = 'bold 14px Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const t = this.opts.titulo;
-    ctx.fillText(t.length > 20 ? t.substring(0, 18) + '…' : t, 0, 0);
-    ctx.restore();
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }
-
-  _buildFaceMat(loader, url, side) {
-    const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-    if (url) {
-      loader.load(url, (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        mat.map = tex;
-        mat.needsUpdate = true;
-      }, undefined, () => {
-        mat.map = this._buildPlaceholderTex(side);
-        mat.needsUpdate = true;
-      });
-    } else {
-      mat.map = this._buildPlaceholderTex(side);
-    }
-    return mat;
-  }
-
-  _buildPlaceholderTex(side) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 400; canvas.height = 600;
-    const ctx = canvas.getContext('2d');
-    const g = ctx.createLinearGradient(0, 0, 400, 600);
-    g.addColorStop(0, '#1a0805');
-    g.addColorStop(1, side === 'front' ? '#3d1508' : '#0f0603');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 400, 600);
-    ctx.strokeStyle = '#c8a050';
-    ctx.lineWidth = 6;
-    ctx.strokeRect(12, 12, 376, 576);
-    ctx.fillStyle = '#c8a050';
-    ctx.font = 'bold 26px Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const words = this.opts.titulo.split(' ');
-    let line = '', lines = [];
-    words.forEach(w => {
-      const t = line + (line ? ' ' : '') + w;
-      if (ctx.measureText(t).width > 340 && line) { lines.push(line); line = w; }
-      else line = t;
-    });
-    if (line) lines.push(line);
-
-    const sy = 300 - ((lines.length - 1) * 36) / 2;
-    lines.forEach((l, i) => ctx.fillText(l, 200, sy + i * 36));
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
   }
 
   // ── Loop de animação ─────────────────────────────────────
