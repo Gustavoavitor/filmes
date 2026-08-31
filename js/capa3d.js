@@ -12,9 +12,17 @@
 import * as THREE from 'three';
 import { criarCaixaEmbalagem, iluminacaoCinematica } from './caixa3d.js';
 
-const MAX_ATIVAS = 8;          // teto de contextos WebGL simultâneos
-const VEL_ROTACAO = 0.0035;    // rad/quadro da rotação lenta
-const POSE_INICIAL = { y: -0.5, x: 0.12 };
+// Teto de contextos WebGL vivos. No celular a GPU e a memória são bem mais
+// apertadas, e cabem menos cards na tela de qualquer forma.
+const MAX_ATIVAS = window.matchMedia?.('(max-width: 768px)').matches ? 3 : 8;
+
+// A capa nunca dá a volta: fica sempre de frente, num leve três-quartos
+// que só sugere o volume da caixa. O mouse inclina dentro desses limites.
+const POSE_INICIAL = { y: -0.30, x: 0.10 };
+const LIMITE_Y = 0.62;         // rad — além disso começaria a mostrar o verso
+const LIMITE_X = 0.34;
+const BALANCO = 0.07;          // amplitude do respiro quando está parada
+const VEL_BALANCO = 0.0009;    // rad/ms do respiro
 
 class Capa3D {
   constructor(container, opts) {
@@ -28,8 +36,11 @@ class Capa3D {
     const w = container.clientWidth  || 200;
     const h = container.clientHeight || 300;
 
+    // Card pequeno não ganha nada com 3x de densidade, e telas de celular
+    // costumam ter devicePixelRatio 3 — limitar aqui corta muito trabalho.
+    const tetoDpr = window.matchMedia?.('(max-width: 768px)').matches ? 1.5 : 2;
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, tetoDpr));
     this.renderer.setSize(w, h);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.domElement.style.cssText = 'width:100%;height:100%;display:block';
@@ -70,8 +81,9 @@ class Capa3D {
       const r = this.container.getBoundingClientRect();
       const nx = (e.clientX - r.left) / r.width  - 0.5;   // -0.5 … 0.5
       const ny = (e.clientY - r.top)  / r.height - 0.5;
-      this.alvoY = POSE_INICIAL.y + nx * 1.4;
-      this.alvoX = POSE_INICIAL.x + ny * 0.7;
+      // Preso à faixa frontal: inclina, mas nunca vira de costas.
+      this.alvoY = limitar(POSE_INICIAL.y + nx * 1.1, -LIMITE_Y, LIMITE_Y);
+      this.alvoX = limitar(POSE_INICIAL.x + ny * 0.6, -LIMITE_X, LIMITE_X);
     };
 
     card.addEventListener('mouseenter', this._onEnter);
@@ -84,8 +96,12 @@ class Capa3D {
     if (this.destruida) return;
     this._raf = requestAnimationFrame(() => this._animar());
 
-    // Sem o mouse em cima, gira devagar sozinha.
-    if (!this.hover) this.alvoY += VEL_ROTACAO;
+    // Parada, apenas respira em torno da frente — nada de volta completa.
+    if (!this.hover) {
+      const t = performance.now();
+      this.alvoY = POSE_INICIAL.y + Math.sin(t * VEL_BALANCO) * BALANCO;
+      this.alvoX = POSE_INICIAL.x + Math.sin(t * VEL_BALANCO * 0.6) * BALANCO * 0.4;
+    }
 
     const g = this.grupo;
     g.rotation.y += (this.alvoY - g.rotation.y) * 0.09;
@@ -204,6 +220,10 @@ class GaleriaCapas3D {
     this.itens.clear();
     this.ativas.clear();
   }
+}
+
+function limitar(v, min, max) {
+  return Math.max(min, Math.min(max, v));
 }
 
 // Junta rajadas de scroll num único quadro.

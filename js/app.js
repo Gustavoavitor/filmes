@@ -110,25 +110,11 @@ function createCard(filme) {
       </div>`;
   }
 
-  let starsHTML = '';
-  if (filme.minha_nota) {
-    // Build star HTML inline
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-      if (filme.minha_nota >= i) {
-        stars += '<span>★</span>';
-      } else if (filme.minha_nota >= i - 0.5) {
-        stars += `<span style="position:relative;display:inline-block"><span style="color:var(--parchment)">★</span><span style="position:absolute;left:0;top:0;overflow:hidden;width:50%;color:var(--gold)">★</span></span>`;
-      } else {
-        stars += `<span style="color:var(--parchment)">★</span>`;
-      }
-    }
-    starsHTML = `
-      <div class="card-stars">
-        <span class="stars-display" aria-label="Nota: ${filme.minha_nota} de 5">${stars}</span>
-        <span class="card-rating-num">${filme.minha_nota.toFixed(1)}</span>
-      </div>`;
-  }
+  // As estrelas são montadas pelo componente depois de inserir o card,
+  // para nunca aparecer estrela cortada e respeitar o tema do filme.
+  const starsHTML = filme.minha_nota
+    ? `<div class="card-stars"><div class="card-stars-widget"></div></div>`
+    : '';
 
   // O slot vem antes do pôster: o canvas 3D cobre a imagem, que fica de
   // fallback enquanto o WebGL não sobe (ou se não houver suporte).
@@ -159,6 +145,11 @@ function createCard(filme) {
   };
   card.addEventListener('click', go);
   card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') go(); });
+
+  if (filme.minha_nota) {
+    renderStars(card.querySelector('.card-stars-widget'),
+                Number(filme.minha_nota), 15, filme.tema_estrelas || null);
+  }
 
   // Capa em 3D. O gerenciador liga só o que está visível.
   if (window.galeriaCapas3D && window.suporteWebGL) {

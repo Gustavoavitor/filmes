@@ -57,6 +57,10 @@ export class Viewer3D {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Mapeamento de tons com exposição alta: o scan sai bem mais legível
+    // do que a renderização crua, que ficava escura demais.
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.35;
     this.container.appendChild(this.renderer.domElement);
 
     // Cena

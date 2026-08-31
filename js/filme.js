@@ -116,79 +116,54 @@ function renderInfo(f) {
   `;
 }
 
-// ── Render sidebar cover & 3D ─────────────────────────────────
-function renderSidebar(f) {
-  // Cover image
-  const coverImg = document.getElementById('film-cover-img');
+// ── Palco: o scan 3D sempre visível, com a capa ao lado ───────
+function renderPalco(f) {
+  const capa = document.getElementById('film-cover-img');
   if (f.capa_url) {
-    coverImg.src = f.capa_url;
-    coverImg.alt = `Capa de ${f.titulo}`;
+    capa.src = f.capa_url;
+    capa.alt = `Capa de ${f.titulo}`;
   } else {
-    document.getElementById('panel-cover').innerHTML = `
-      <div style="aspect-ratio:2/3;background:linear-gradient(135deg,var(--mahogany-dark),var(--charcoal));display:flex;align-items:center;justify-content:center;border:3px solid var(--gold-dark);">
-        <span style="font-size:4rem;opacity:.5;">📽</span>
-      </div>`;
+    // Sem capa cadastrada, um lugar reservado no lugar da imagem quebrada.
+    capa.closest('.palco-capa').innerHTML = `
+      <div class="capa-ausente">
+        <span class="capa-ausente-icone">📽</span>
+        <span class="capa-ausente-texto">${escapeHtml(f.titulo)}</span>
+      </div>
+      <figcaption class="palco-capa-legenda">Sem capa cadastrada</figcaption>`;
   }
 
-  // Tab listeners
-  document.getElementById('tab-cover').addEventListener('click', () => switchTab('cover'));
-  document.getElementById('tab-3d').addEventListener('click', () => switchTab('3d'));
-  prepararAbaTrailer(f);
-
-  // My rating
   renderMyRating(f);
+  prepararTrailer(f);
+
+  // O visualizador entra de imediato: é o centro da página.
+  iniciarViewer3d();
 }
 
-const ABAS = ['cover', '3d', 'trailer'];
-
-function switchTab(qual) {
-  ABAS.forEach(nome => {
-    const ativa  = nome === qual;
-    const painel = document.getElementById(`panel-${nome}`);
-    const aba    = document.getElementById(`tab-${nome === 'cover' ? 'cover' : nome}`);
-    if (painel) painel.style.display = ativa ? 'block' : 'none';
-    if (aba) {
-      aba.classList.toggle('active', ativa);
-      aba.setAttribute('aria-selected', String(ativa));
-    }
-  });
-
-  // O visualizador é pesado: só monta quando a aba é aberta de fato.
-  if (qual === '3d' && !viewer3d && !iniciando3d && filmeData) iniciarViewer3d();
-
-  // O iframe do YouTube também só entra quando alguém pede o trailer.
-  if (qual === 'trailer') montarTrailer();
-  else pausarTrailer();
+// O tema das estrelas vem do banco (coluna tema_estrelas). Sem valor,
+// usa o dourado padrão da casa.
+function temaDoFilme(f) {
+  return f?.tema_estrelas || null;
 }
 
-// O viewer é pesado (three.js + o GLB), então só monta quando a aba é aberta.
-let iniciando3d = false;
-
+// ── Visualizador 3D ───────────────────────────────────────────
 async function iniciarViewer3d() {
-  iniciando3d = true;
   const container = document.getElementById('viewer-3d-container');
+  if (!container || viewer3d) return;
 
   // viewer3d.js é um módulo ES: pode não ter terminado de carregar ainda.
   if (typeof Viewer3D === 'undefined') {
-    container.innerHTML = `
-      <div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--font-marquee);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase">
-        Carregando o visualizador…
-      </div>`;
+    container.innerHTML = `<div class="viewer-3d-aviso">Carregando o visualizador…</div>`;
     await esperarViewer3D();
     container.innerHTML = '';
   }
 
   if (typeof Viewer3D === 'undefined') {
-    container.innerHTML = `
-      <div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:var(--font-marquee);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:1rem">
-        Visualizador 3D indisponível
-      </div>`;
-    iniciando3d = false;
+    container.innerHTML = `<div class="viewer-3d-aviso">Visualizador 3D indisponível neste navegador</div>`;
     return;
   }
 
-  // Procura assets/modelos3d/<slug-do-titulo>.glb. Se não existir,
-  // o Viewer3D monta a caixa com a capa como textura.
+  // Procura assets/modelos3d/<slug-do-titulo>.glb. Sem arquivo, o Viewer3D
+  // monta a caixa da embalagem com a capa como textura.
   const glbUrl = await acharGlb(filmeData.titulo);
 
   viewer3d = new Viewer3D(container, {
@@ -199,7 +174,6 @@ async function iniciarViewer3d() {
     formato:         filmeData.formato,
     corSpine:        filmeData.cor_spine || '#1a1a1a',
   });
-  iniciando3d = false;
 }
 
 function esperarViewer3D(timeoutMs = 8000) {
@@ -214,29 +188,25 @@ function esperarViewer3D(timeoutMs = 8000) {
 
 function renderMyRating(f) {
   const block = document.getElementById('my-rating-block');
-  if (f.minha_nota) {
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-      if (f.minha_nota >= i) stars += '★';
-      else if (f.minha_nota >= i - 0.5) stars += `<span style="position:relative;display:inline-block"><span style="color:rgba(232,222,200,.4)">★</span><span style="position:absolute;left:0;top:0;overflow:hidden;width:50%;color:var(--gold)">★</span></span>`;
-      else stars += `<span style="color:rgba(232,222,200,.3)">★</span>`;
-    }
-    block.innerHTML = `
-      <div class="my-rating-display">
-        <div class="my-rating-stars" aria-label="Minha nota: ${f.minha_nota} de 5">${stars}</div>
-        <div>
-          <div class="my-rating-num">${f.minha_nota.toFixed(1)}</div>
-          <div style="font-family:var(--font-marquee);font-size:.55rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;">minha nota</div>
-        </div>
-      </div>`;
-  } else {
+
+  if (!f.minha_nota) {
     block.innerHTML = `<p style="font-family:var(--font-marquee);font-size:.65rem;color:var(--muted);letter-spacing:.1em;">Ainda sem nota do curador</p>`;
+    return;
   }
+
+  block.innerHTML = `
+    <div class="my-rating-display">
+      <div class="my-rating-stars"></div>
+      <div>
+        <div class="my-rating-num">${Number(f.minha_nota).toFixed(1)}</div>
+        <div class="rating-mini-label">minha nota</div>
+      </div>
+    </div>`;
+
+  renderStars(block.querySelector('.my-rating-stars'), Number(f.minha_nota), 26, temaDoFilme(f));
 }
 
 // ── Trailer ───────────────────────────────────────────────────
-let trailerMontado = false;
-
 function urlDeEmbed(trailerUrl) {
   const id = extractYouTubeId(trailerUrl);
   // enablejsapi permite mandar "pause" pelo postMessage quando a aba muda.
@@ -247,7 +217,7 @@ function urlDeEmbed(trailerUrl) {
 
 // Esconder o painel não interrompe o áudio do YouTube; é preciso pedir.
 function pausarTrailer() {
-  document.querySelectorAll('#trailer-sidebar-wrap iframe, #trailer-iframe').forEach(ifr => {
+  document.querySelectorAll('#trailer-iframe').forEach(ifr => {
     try {
       ifr.contentWindow?.postMessage(
         '{"event":"command","func":"pauseVideo","args":""}', '*'
@@ -256,39 +226,21 @@ function pausarTrailer() {
   });
 }
 
-// Prepara a aba: sem trailer cadastrado, ela some da barra.
-// Esconde em vez de remover — assim a função é idempotente e a aba volta
-// se o filme for recarregado com um trailer.
-function prepararAbaTrailer(f) {
-  const aba = document.getElementById('tab-trailer');
-  if (!aba) return;
+function prepararTrailer(f) {
+  const btn = document.getElementById('btn-trailer');
+  if (!btn) return;
 
-  if (!f.trailer_url) { aba.style.display = 'none'; return; }
-  aba.style.display = '';
-  aba.addEventListener('click', () => switchTab('trailer'));
+  if (!f.trailer_url) { btn.style.display = 'none'; return; }
+  btn.style.display = 'flex';
+  btn.addEventListener('click', abrirTrailerModal);
 
-  const btnGrande = document.getElementById('btn-trailer-grande');
-  btnGrande.style.display = 'inline-flex';
-  btnGrande.addEventListener('click', abrirTrailerModal);
-
-  document.getElementById('btn-fechar-trailer')
-    ?.addEventListener('click', fecharTrailerModal);
-
+  document.getElementById('btn-fechar-trailer')?.addEventListener('click', fecharTrailerModal);
   document.getElementById('trailer-modal')?.addEventListener('click', (e) => {
     if (e.target.id === 'trailer-modal') fecharTrailerModal();
   });
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') fecharTrailerModal();
   });
-}
-
-function montarTrailer() {
-  if (trailerMontado || !filmeData?.trailer_url) return;
-  trailerMontado = true;
-  document.getElementById('trailer-sidebar-wrap').innerHTML =
-    `<iframe src="${escapeHtml(urlDeEmbed(filmeData.trailer_url))}" allowfullscreen
-             title="Trailer de ${escapeHtml(filmeData.titulo)}" loading="lazy"></iframe>`;
 }
 
 function abrirTrailerModal() {
@@ -325,7 +277,7 @@ function renderComments(comments) {
     document.getElementById('community-count').textContent = `${comments.length} avaliação${comments.length !== 1 ? 'ões' : ''}`;
     document.getElementById('community-avg').textContent   = avg.toFixed(1);
     const commStars = document.getElementById('community-stars');
-    renderStars(commStars, avg, 18);
+    renderStars(commStars, avg, 18, temaDoFilme(filmeData));
   }
 
   if (comments.length === 0) {
@@ -348,7 +300,7 @@ function renderComments(comments) {
     let starsEl = '';
     if (c.nota) {
       const tmpDiv = document.createElement('div');
-      renderStars(tmpDiv, c.nota, 16);
+      renderStars(tmpDiv, c.nota, 16, temaDoFilme(filmeData));
       starsEl = `<div style="margin-bottom:.5rem;">${tmpDiv.innerHTML}</div>`;
     }
 
@@ -369,7 +321,9 @@ function renderComments(comments) {
 // ── Init comment form ─────────────────────────────────────────
 function initCommentForm() {
   const container = document.getElementById('comment-rating-container');
-  commentRating   = new StarRating(container, { value: 0, readOnly: false, size: 22 });
+  commentRating   = new StarRating(container, {
+    value: 0, readOnly: false, size: 26, tema: temaDoFilme(filmeData),
+  });
 
   const form = document.getElementById('comment-form');
   form.addEventListener('submit', async (e) => {
@@ -415,7 +369,7 @@ async function boot() {
 
   renderHero(filme);
   renderInfo(filme);
-  renderSidebar(filme);
+  renderPalco(filme);
   renderComments(comentarios);
   initCommentForm();
 

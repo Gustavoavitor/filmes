@@ -1162,12 +1162,15 @@ h1, h2, h3, h4, h5, h6 {
 /* 3D Viewer container */
 .viewer-3d-container {
   width: 100%;
-  aspect-ratio: 3/4;
-  background: linear-gradient(135deg, #0a0505 0%, #1a0a08 100%);
+  aspect-ratio: 4 / 3;
+  /* Fundo claro como o de um estúdio: o azul da caixa precisa ler azul */
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, #ffffff 0%, var(--cream-light) 45%, var(--cream-dark) 100%);
   border: 2px solid var(--gold-dark);
   position: relative;
   overflow: hidden;
   cursor: grab;
+  box-shadow: var(--shadow-inset);
 }
 
 .viewer-3d-container:active { cursor: grabbing; }
@@ -2092,3 +2095,385 @@ h1, h2, h3, h4, h5, h6 {
   .projecao-35mm,
   .projecao-abertura { display: none !important; }
 }
+
+
+/* ============================================================
+   21. ESTRELAS DE AVALIAÇÃO
+   ============================================================ */
+.star-rating {
+  --estrela-tam: 24px;
+  --estrela-cor: var(--gold);
+  --estrela-vazia: rgba(120, 100, 70, 0.22);
+  --estrela-traco: var(--gold-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  line-height: 1;
+}
+
+.estrelas-linha {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  outline: none;
+}
+
+.estrelas-linha:focus-visible {
+  outline: 2px solid var(--gold-dark);
+  outline-offset: 4px;
+}
+
+.estrela {
+  width: var(--estrela-tam);
+  height: var(--estrela-tam);
+  display: block;
+  overflow: visible;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Miolo apagado, sempre presente: garante a forma fechada da estrela */
+.estrela-base    { fill: var(--estrela-vazia); }
+/* Parte acesa, recortada pelo gradiente de dois stops */
+.estrela-brilho  { fill: var(--estrela-cor); }
+/* Contorno por cima, para a estrela nunca parecer partida */
+.estrela-contorno {
+  fill: none;
+  stroke: var(--estrela-traco);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  opacity: 0.65;
+}
+
+.star-rating.interactive .estrela { cursor: pointer; }
+.star-rating.interactive .estrela:hover { transform: scale(1.18); }
+
+.estrela-valor {
+  font-family: var(--font-display);
+  font-size: calc(var(--estrela-tam) * 0.85);
+  font-weight: 900;
+  color: var(--estrela-cor);
+  min-width: 2ch;
+}
+
+/* ── Tema: Veludo Azul ───────────────────────────────────── */
+.star-rating.tema-veludo {
+  --estrela-cor: #2f6bd8;
+  --estrela-vazia: rgba(30, 50, 105, 0.20);
+  --estrela-traco: #17306e;
+}
+
+.star-rating.tema-veludo .estrela-brilho {
+  /* leve profundidade, como tecido pegando luz de lado */
+  filter: drop-shadow(0 0 3px rgba(60, 120, 240, 0.55));
+}
+
+/* ── Tema: Videodrome ────────────────────────────────────── */
+.star-rating.tema-videodrome {
+  --estrela-cor: #d8452a;
+  --estrela-vazia: rgba(90, 30, 20, 0.22);
+  --estrela-traco: #6d1a0e;
+}
+
+/* Linhas de varredura do tubo, por cima do miolo aceso */
+.star-rating.tema-videodrome .estrela {
+  position: relative;
+}
+
+.star-rating.tema-videodrome .estrelas-linha {
+  position: relative;
+}
+
+.star-rating.tema-videodrome .estrelas-linha::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.14) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: overlay;
+  animation: varredura-tv 5s linear infinite;
+}
+
+@keyframes varredura-tv {
+  from { background-position-y: 0; }
+  to   { background-position-y: 24px; }
+}
+
+/* ── Animação ao escolher a nota ─────────────────────────── */
+.star-rating.escolhendo .estrela {
+  animation: estrela-derrete 0.72s cubic-bezier(0.4, 0, 0.3, 1);
+}
+
+.star-rating.escolhendo .estrela:nth-child(2) { animation-delay: 0.04s; }
+.star-rating.escolhendo .estrela:nth-child(3) { animation-delay: 0.08s; }
+.star-rating.escolhendo .estrela:nth-child(4) { animation-delay: 0.12s; }
+.star-rating.escolhendo .estrela:nth-child(5) { animation-delay: 0.16s; }
+
+@keyframes estrela-derrete {
+  0%   { transform: scaleY(1) skewX(0deg);      filter: blur(0); }
+  30%  { transform: scaleY(1.35) skewX(-7deg);  filter: blur(1.1px); }
+  55%  { transform: scaleY(0.78) skewX(5deg);   filter: blur(0.6px); }
+  78%  { transform: scaleY(1.1) skewX(-2deg);   filter: blur(0.2px); }
+  100% { transform: scaleY(1) skewX(0deg);      filter: blur(0); }
+}
+
+/* No Videodrome o derretimento ganha separação de cor, como sinal ruim */
+.star-rating.tema-videodrome.escolhendo .estrela {
+  animation-name: estrela-derrete, sinal-ruim;
+  animation-duration: 0.72s, 0.72s;
+}
+
+@keyframes sinal-ruim {
+  0%, 100% { filter: none; }
+  20% { filter: drop-shadow(2px 0 0 #00e5ff) drop-shadow(-2px 0 0 #ff0040); }
+  45% { filter: drop-shadow(-3px 0 0 #00e5ff) drop-shadow(3px 0 0 #ff0040); }
+  70% { filter: drop-shadow(1px 0 0 #00e5ff) drop-shadow(-1px 0 0 #ff0040); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-rating.escolhendo .estrela { animation: none; }
+  .star-rating.tema-videodrome .estrelas-linha::after { animation: none; }
+}
+
+
+/* ============================================================
+   22. PALCO DA FICHA — scan 3D grande + capa ao lado
+   ============================================================ */
+.palco {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(260px, 1fr);
+  gap: var(--space-8);
+  max-width: 1300px;
+  margin: var(--space-10) auto var(--space-8);
+  padding: 0 var(--space-8);
+  align-items: start;
+}
+
+.palco-3d { position: relative; }
+
+.palco-lado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.palco-capa {
+  margin: 0;
+  position: relative;
+}
+
+.palco-capa .film-main-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+  border: 2px solid var(--gold-dark);
+  box-shadow: var(--shadow-card);
+  background: var(--cream-dark);
+}
+
+.palco-capa-legenda {
+  font-family: var(--font-marquee);
+  font-size: 0.55rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  margin-top: var(--space-2);
+}
+
+/* Dica de arrastar, agora sobreposta ao palco */
+.viewer-3d-label {
+  display: block;
+  text-align: center;
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: var(--space-3);
+}
+
+/* ── Botão de trailer: um disco Blu-ray ──────────────────── */
+.btn-bluray {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-4);
+  background: linear-gradient(135deg, #0d1b3e 0%, #16295c 55%, #0a1330 100%);
+  border: 2px solid var(--gold-dark);
+  color: var(--parchment);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-bluray:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold-dark), 0 8px 20px rgba(10, 20, 50, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-bluray-disco {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: block;
+}
+
+.btn-bluray-disco svg { width: 100%; height: 100%; display: block; }
+
+.disco-borda  { fill: #0b57d0; stroke: #7fb0ff; stroke-width: 1.2; }
+.disco-trilha { fill: none; stroke: rgba(190, 220, 255, 0.45); stroke-width: 0.8; }
+.disco-furo   { fill: var(--charcoal); stroke: #7fb0ff; stroke-width: 1; }
+.disco-play   { fill: var(--gold-light); }
+
+.btn-bluray:hover .btn-bluray-disco svg {
+  animation: disco-girar 1.4s linear infinite;
+}
+
+@keyframes disco-girar {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.btn-bluray-texto { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+.btn-bluray-texto strong {
+  font-family: var(--font-marquee);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  font-weight: 400;
+}
+
+.btn-bluray-texto em {
+  font-family: var(--font-marquee);
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(232, 222, 200, 0.55);
+  font-style: normal;
+}
+
+/* ── Rótulos pequenos do painel de nota ──────────────────── */
+.rating-mini-label {
+  font-family: var(--font-marquee);
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.community-avg-num {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--gold-dark);
+}
+
+/* ── Ficha técnica e comentários, agora em largura cheia ─── */
+.film-info-section {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 var(--space-8) var(--space-8);
+}
+
+.comments-wrap {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 var(--space-8) var(--space-16);
+}
+
+.comment-form-topo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* ============================================================
+   23. MOBILE — o palco empilha e o 3D continua grande
+   ============================================================ */
+@media (max-width: 900px) {
+  .palco {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding: 0 var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  /* A capa deixa de ocupar uma coluna inteira e divide espaço com a nota */
+  .palco-lado {
+    display: grid;
+    grid-template-columns: minmax(0, 150px) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+
+  .viewer-3d-container { aspect-ratio: 1 / 1; }
+
+  .film-info-section,
+  .comments-wrap { padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+
+@media (max-width: 560px) {
+  .palco-lado { grid-template-columns: 1fr; }
+  .palco-capa { max-width: 210px; margin: 0 auto; }
+  .comment-form-topo { grid-template-columns: 1fr; }
+  .viewer-3d-container { aspect-ratio: 3 / 4; }
+  .viewer-3d-label { letter-spacing: 0.18em; font-size: 0.55rem; }
+  .btn-bluray { padding: var(--space-3); gap: var(--space-3); }
+  .btn-bluray-disco { width: 34px; height: 34px; }
+}
+
+/* ── Avulsos do palco ────────────────────────────────────── */
+.capa-ausente {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  border: 2px solid var(--gold-dark);
+  background: linear-gradient(135deg, var(--mahogany-dark), var(--charcoal));
+  color: var(--gold);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.capa-ausente-icone { font-size: 2.5rem; opacity: 0.6; }
+
+.capa-ausente-texto {
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--parchment);
+}
+
+.viewer-3d-aviso {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+  font-family: var(--font-marquee);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* As estrelas do card ficam menores e sem o número ao lado */
+.card-stars { display: flex; align-items: center; gap: var(--space-2); }

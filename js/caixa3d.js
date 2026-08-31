@@ -147,25 +147,31 @@ function texturaPlaceholder(lado, titulo) {
   return tex;
 }
 
-// ── Iluminação padrão (mesma vibe nos dois usos) ──────────────
+// ── Iluminação ────────────────────────────────────────────────
+// Neutra de propósito. A versão anterior usava uma luz de preenchimento
+// dourada que tingia tudo de amarelo — a arte da capa precisa aparecer na
+// cor que ela tem de verdade, como numa mesa de fotografia de produto.
 export function iluminacaoCinematica(scene, { comSombra = true } = {}) {
-  scene.add(new THREE.AmbientLight(0xffe8d0, 0.6));
+  // Céu branco + rebote quente do chão: sombras vivas em vez de pretas.
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xd9cfbe, 0.95));
 
-  const key = new THREE.DirectionalLight(0xfffaf0, 1.4);
-  key.position.set(3, 5, 4);
+  const key = new THREE.DirectionalLight(0xffffff, 1.75);
+  key.position.set(3.5, 5, 4.5);
   key.castShadow = comSombra;
   if (comSombra) {
     key.shadow.mapSize.width  = 1024;
     key.shadow.mapSize.height = 1024;
+    key.shadow.bias = -0.0008;
   }
   scene.add(key);
 
-  const fill = new THREE.DirectionalLight(0xc8a050, 0.5);
-  fill.position.set(-4, 1, 2);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.7);
+  fill.position.set(-4.5, 1.5, 3);
   scene.add(fill);
 
-  const rim = new THREE.DirectionalLight(0xe8d8c0, 0.3);
-  rim.position.set(0, -2, -4);
+  // Só o contorno mantém um toque quente, para não ficar clínico.
+  const rim = new THREE.DirectionalLight(0xfff2e0, 0.55);
+  rim.position.set(0, 1.5, -4.5);
   scene.add(rim);
 
   return key;
