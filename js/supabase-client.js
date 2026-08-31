@@ -172,13 +172,33 @@ function formatDate(iso) {
   });
 }
 
-// As credenciais ainda sao as de exemplo do config.js?
-// Sem isso, cada requisicao fica pendurada no DNS ate dar timeout.
+// As credenciais públicas ainda são as de exemplo do config.js?
+// Sem esse teste, cada requisição fica pendurada no DNS até dar timeout.
 function configIncompleta() {
-  return SUPABASE_CONFIG.url.includes("SEU_PROJETO") ||
-         SUPABASE_CONFIG.anonKey.includes("SUA_CHAVE") ||
-         SUPABASE_CONFIG.adminKey.includes("SUA_SERVICE_ROLE_KEY");
+  const { url, anonKey } = SUPABASE_CONFIG;
+  return !url || !anonKey ||
+         url.includes('SEU_PROJETO') ||
+         anonKey.includes('SUA_CHAVE');
 }
+
+// A service_role key vem de js/config.local.js, que fica fora do
+// repositório. Em produção ela não existe e o admin não deve abrir.
+function semChaveAdmin() {
+  const k = SUPABASE_CONFIG.adminKey;
+  return !k || k.includes('SUA_SERVICE_ROLE_KEY');
+}
+
+// O painel só existe rodando localmente, então o link some em produção
+// para não virar um 404 na navegação.
+function ehAmbienteLocal() {
+  return ['localhost', '127.0.0.1', '::1', ''].includes(window.location.hostname);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!ehAmbienteLocal()) {
+    document.getElementById('nav-admin')?.remove();
+  }
+});
 
 function escapeHtml(str) {
   return String(str ?? '')

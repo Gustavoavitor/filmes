@@ -27,6 +27,20 @@ function initGate() {
   const input = document.getElementById('gate-password');
   const erro  = document.getElementById('gate-error');
 
+  // Sem js/config.local.js não há service_role key nem senha: é o estado
+  // esperado em produção, já que esse arquivo não vai para o repositório.
+  if (semChaveAdmin() || !ADMIN_PASSWORD) {
+    form.style.display = 'none';
+    erro.style.display = 'block';
+    erro.style.color = 'var(--charcoal-mid)';
+    erro.innerHTML = `
+      <strong style="color:var(--red-cinema)">Painel indisponível aqui.</strong><br /><br />
+      O administrador roda apenas na sua máquina. Copie
+      <code>js/config.local.example.js</code> para <code>js/config.local.js</code>,
+      preencha a service_role key e a senha, e abra o site localmente.`;
+    return;
+  }
+
   if (sessionStorage.getItem(SESSION_KEY) === '1') {
     abrirPainel();
     return;

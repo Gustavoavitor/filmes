@@ -1,0 +1,10 @@
+# Configuração local — contém a service_role key do Supabase.
+# Nunca deve ser commitada nem publicada.
+js/config.local.js
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Dependências (caso o projeto ganhe um build no futuro)
+node_modules/

@@ -33,27 +33,40 @@ Row Level Security e insere dois registros de exemplo.
 
 ### 3. Preencher as credenciais
 
-Em **Project Settings → API** você encontra três valores. Copie-os para
-[`js/config.js`](js/config.js):
+As credenciais ficam em dois arquivos, e a divisão é proposital: um vai para o
+repositório e o outro nunca sai da sua máquina.
 
-| Campo no Supabase        | Campo no `config.js` |
-| ------------------------ | -------------------- |
-| Project URL              | `url`                |
-| `anon` `public`          | `anonKey`            |
-| `service_role` `secret`  | `adminKey`           |
+**`js/config.js`** — versionado e servido publicamente. Em
+**Project Settings → API**, copie:
 
-Aproveite para trocar a `ADMIN_PASSWORD`, que é a senha do painel.
+| Campo no Supabase | Campo no `config.js` |
+| ----------------- | -------------------- |
+| Project URL       | `url`                |
+| `anon` `public`   | `anonKey`            |
 
-> **Atenção — a `service_role` key fica exposta.**
-> Ela é servida dentro do `js/config.js` junto com o resto do site, então
-> qualquer visitante consegue lê-la pelo DevTools do navegador. Essa chave
-> ignora todas as políticas de RLS: quem a tiver pode ler, alterar e apagar
-> qualquer dado do banco.
+A `anon` key é feita para ficar exposta no navegador — ela respeita as políticas
+de Row Level Security do [`supabase-schema.sql`](supabase-schema.sql), que
+permitem leitura pública e inserção apenas em comentários.
+
+**`js/config.local.js`** — fora do repositório, listado no `.gitignore`.
+Copie o modelo e preencha:
+
+```bash
+cp js/config.local.example.js js/config.local.js
+```
+
+Ele carrega a `service_role` key e a senha do painel. Só o `admin.html` lê esse
+arquivo.
+
+> **Por que separar.** A `service_role` key ignora todas as políticas de RLS:
+> quem a tiver pode ler, alterar e apagar qualquer dado do banco. Se ela
+> estivesse no `config.js`, qualquer visitante do site publicado poderia lê-la
+> abrindo `/js/config.js` no navegador.
 >
-> Enquanto o site rodar só na sua máquina, isso não é um problema. **Antes de
-> publicar em qualquer lugar** (Vercel, GitHub Pages, Netlify), troque este
-> esquema por Supabase Auth + políticas RLS de escrita para usuários
-> autenticados — assim nenhuma chave secreta precisa ir para o cliente.
+> Com a divisão, o site publicado funciona por inteiro — coleção, ficha dos
+> filmes, recomendações e comentários — e o painel de administração existe
+> apenas quando você roda o projeto localmente. Em produção ele mostra um aviso
+> e o link "Admin" some da navegação.
 
 ### 4. Rodar localmente
 
@@ -75,7 +88,9 @@ recomendacoes.html      Recomendações semanais
 admin.html              Painel de administração
 css/main.css            Todo o estilo do site
 js/
-  config.js             Credenciais do Supabase e senha do admin
+  config.js             URL + anon key (versionado, público)
+  config.local.js       service_role key + senha do admin (NÃO versionado)
+  config.local.example.js  Modelo do arquivo acima
   supabase-client.js    Acesso ao banco + helpers compartilhados
   app.js                Home: billboard, grid, filtros, paginação
   filme.js              Ficha do filme: abas, trailer, comentários
@@ -112,11 +127,32 @@ O painel de administração mostra o nome exato esperado no campo
 Veja [`assets/modelos3d/README.md`](assets/modelos3d/README.md) para detalhes
 de exportação.
 
+## Deploy na Vercel
+
+O site é estático, sem etapa de build. Na Vercel, **Add New → Project →
+Import** o repositório do GitHub e use:
+
+| Campo            | Valor   |
+| ---------------- | ------- |
+| Framework Preset | `Other` |
+| Build Command    | (vazio) |
+| Output Directory | (vazio) |
+
+Depois disso o vínculo é automático: todo push na `main` vira um deploy de
+produção, e cada branch ou pull request ganha uma URL de preview própria.
+
+O `js/config.local.js` não é commitado, então não chega à Vercel — é assim que
+a `service_role` key fica fora do ar. Não adicione a chave como variável de
+ambiente na Vercel: este é um site estático, sem servidor, e qualquer valor
+injetado no cliente seria igualmente público.
+
 ## Pendências conhecidas
 
 Nenhuma pendência técnica aberta. O que falta é operacional:
 
-- **Criar o projeto no Supabase e preencher o `js/config.js`** — até lá as quatro
-  páginas mostram um aviso pedindo a configuração, em vez de tentar buscar dados.
-- **Trocar a `service_role` key por Supabase Auth + RLS** antes de publicar o site
-  em qualquer lugar. Veja o aviso na seção de configuração.
+- **Criar o projeto no Supabase e preencher os dois arquivos de config** — até lá
+  as páginas mostram um aviso pedindo a configuração, em vez de tentar buscar
+  dados.
+- **Se um dia quiser administrar a coleção pelo site publicado**, aí sim vale
+  migrar para Supabase Auth com políticas RLS de escrita para usuários
+  autenticados. Enquanto o painel rodar só local, não é necessário.
