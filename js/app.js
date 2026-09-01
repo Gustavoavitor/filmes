@@ -97,8 +97,6 @@ function createCard(filme) {
   card.setAttribute('tabindex', '0');
   card.setAttribute('aria-label', `Ver detalhes de ${filme.titulo}`);
 
-  const formatoBadge = filme.formato === 'bluray' ? 'Blu-ray' : 'DVD';
-
   let posterHTML = '';
   if (filme.capa_url) {
     posterHTML = `<img class="card-poster" src="${filme.capa_url}" alt="Capa de ${filme.titulo}" loading="lazy" />`;
@@ -106,50 +104,28 @@ function createCard(filme) {
     posterHTML = `
       <div class="card-poster-placeholder">
         <div class="placeholder-icon">📽</div>
-        <div class="placeholder-title">${filme.titulo}</div>
+        <div class="placeholder-title">${escapeHtml(filme.titulo)}</div>
       </div>`;
   }
 
-  // As estrelas são montadas pelo componente depois de inserir o card,
-  // para nunca aparecer estrela cortada e respeitar o tema do filme.
-  const starsHTML = filme.minha_nota
-    ? `<div class="card-stars"><div class="card-stars-widget"></div></div>`
-    : '';
-
-  // O slot vem antes do pôster: o canvas 3D cobre a imagem, que fica de
-  // fallback enquanto o WebGL não sobe (ou se não houver suporte).
+  // A capa 3D fica solta sobre o fundo, sem moldura, e embaixo só o
+  // essencial: diretor e ano. O título já está na arte da capa.
   card.innerHTML = `
     <div class="film-card-inner">
       <div class="card-poster-wrap">
         <div class="capa3d-slot"></div>
         ${posterHTML}
-        <span class="card-format-badge">${formatoBadge}</span>
-        <div class="card-overlay">
-          <button class="card-overlay-btn" aria-hidden="true">Ver Detalhes</button>
-        </div>
       </div>
-      <div class="card-body">
-        <h2 class="card-title">${escapeHtml(filme.titulo)}</h2>
-        <p class="card-year">${escapeHtml([filme.diretor, filme.ano].filter(Boolean).join(' · '))}</p>
-        ${starsHTML}
-      </div>
+      <p class="card-legenda">${escapeHtml([filme.diretor, filme.ano].filter(Boolean).join(' · '))}</p>
     </div>
   `;
 
   // A transição de projeção (js/projecao.js) intercepta este atributo.
   card.dataset.filmeId = filme.id;
 
-  const go = () => {
-    if (window.projetarE) window.projetarE(`filme.html?id=${filme.id}`);
-    else window.location.href = `filme.html?id=${filme.id}`;
-  };
+  const go = () => abrirFicha(filme.id);
   card.addEventListener('click', go);
   card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') go(); });
-
-  if (filme.minha_nota) {
-    renderStars(card.querySelector('.card-stars-widget'),
-                Number(filme.minha_nota), 15, filme.tema_estrelas || null);
-  }
 
   // Capa em 3D. O gerenciador liga só o que está visível.
   if (window.galeriaCapas3D && window.suporteWebGL) {
@@ -397,6 +373,9 @@ async function boot() {
   buildGenreFilter();
   initFilters();
   applyFilters();
+
+  // Link direto para um filme (?film=<id>) abre a ficha de saída.
+  if (typeof abrirFichaDaUrl === "function") abrirFichaDaUrl();
 }
 
 document.addEventListener('DOMContentLoaded', boot);

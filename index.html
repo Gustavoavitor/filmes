@@ -15,18 +15,12 @@
   <header class="site-header" role="banner">
     <div class="header-top">
       <a href="index.html" class="site-logo" aria-label="Cinemateca Pessoal — Página Inicial">
-        <span class="logo-subtitle">est. mmxxiv</span>
         <span class="logo-title">
           <span class="logo-star">✦</span>
           Cinemateca<span class="logo-frio">&nbsp;Pessoal</span>
           <span class="logo-star">✦</span>
         </span>
       </a>
-      <nav class="site-nav" role="navigation" aria-label="Navegação principal">
-        <a href="index.html" class="nav-link active" id="nav-colecao">Coleção</a>
-        <a href="recomendacoes.html" class="nav-link" id="nav-recomendacoes">Recomendações</a>
-        <a href="admin.html" class="nav-admin-btn" id="nav-admin">⚙ Admin</a>
-      </nav>
     </div>
     <div class="film-strip" role="presentation" aria-hidden="true"></div>
   </header>
@@ -157,8 +151,72 @@
   <script src="js/config.js"></script>
   <script src="js/rating.js"></script>
   <script src="js/supabase-client.js"></script>
+  <!-- GSAP move o colapso do palco conforme a rolagem da ficha -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
   <script src="js/projecao.js"></script>
   <script type="module" src="js/capa3d.js"></script>
+  <script type="module" src="js/viewer3d.js"></script>
+  <script src="js/ficha.js"></script>
   <script src="js/app.js"></script>
+
+
+  <!-- ══════════════════════════════════════════════════
+       FICHA DO FILME — abre por cima da coleção
+       O desfoque atrás é a grade de verdade, e fechar devolve o
+       usuário exatamente onde ele estava.
+  ══════════════════════════════════════════════════ -->
+  <div class="ficha" id="ficha" role="dialog" aria-modal="true"
+       aria-labelledby="ficha-titulo" hidden>
+    <div class="ficha-fundo" aria-hidden="true"></div>
+
+    <h1 class="visualmente-oculto" id="ficha-titulo">Detalhes do filme</h1>
+
+    <button type="button" class="ficha-fechar" id="ficha-fechar"
+            aria-label="Fechar e voltar à coleção">
+      <span aria-hidden="true">✕</span>
+      <span class="ficha-fechar-texto">Voltar à coleção</span>
+    </button>
+
+    <div class="ficha-rolagem" id="ficha-rolagem">
+      <section class="ficha-palco" id="ficha-palco">
+        <div class="ficha-info" id="ficha-info"></div>
+        <div class="ficha-scan" id="ficha-scan"
+             aria-label="Scan 3D da embalagem — arraste para girar"></div>
+        <aside class="ficha-lado" id="ficha-lado"></aside>
+      </section>
+
+      <section class="ficha-comunidade" id="ficha-comunidade"></section>
+    </div>
+  </div>
+
+  <!-- Modal de trailer, compartilhado com a ficha -->
+  <div class="trailer-modal" id="trailer-modal" role="dialog" aria-modal="true"
+       aria-labelledby="trailer-modal-title">
+    <div class="trailer-modal-inner">
+      <div class="trailer-modal-header">
+        <span class="trailer-modal-title" id="trailer-modal-title">Trailer</span>
+        <button type="button" class="trailer-modal-close" id="btn-fechar-trailer"
+                aria-label="Fechar trailer">✕ Fechar</button>
+      </div>
+      <div class="trailer-modal-body">
+        <iframe id="trailer-iframe" src="" title="Trailer"
+                allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de navegação flutuante, no centro inferior — a referência é a
+       da Cinemateca Brasileira. As lâmpadas mantêm o ar de marquise. -->
+  <nav class="barra-marquise" role="navigation" aria-label="Navegação principal">
+    <span class="barra-lampadas" aria-hidden="true"></span>
+    <div class="barra-itens">
+      <a href="index.html" class="barra-item ativo" id="nav-colecao">Coleção</a>
+      <a href="recomendacoes.html" class="barra-item" id="nav-recomendacoes">Recomendações</a>
+      <a href="admin.html" class="barra-item barra-item--admin" id="nav-admin">Admin</a>
+    </div>
+  </nav>
 </body>
 </html>

@@ -152,8 +152,8 @@ function texturaPlaceholder(lado, titulo) {
 // dourada que tingia tudo de amarelo — a arte da capa precisa aparecer na
 // cor que ela tem de verdade, como numa mesa de fotografia de produto.
 export function iluminacaoCinematica(scene, { comSombra = true } = {}) {
-  // Céu branco + rebote quente do chão: sombras vivas em vez de pretas.
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xd9cfbe, 0.95));
+  // Céu branco + rebote cinza-neutro do chão: sombras vivas, sem tingir.
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xdcdce0, 0.95));
 
   const key = new THREE.DirectionalLight(0xffffff, 1.75);
   key.position.set(3.5, 5, 4.5);
@@ -169,8 +169,8 @@ export function iluminacaoCinematica(scene, { comSombra = true } = {}) {
   fill.position.set(-4.5, 1.5, 3);
   scene.add(fill);
 
-  // Só o contorno mantém um toque quente, para não ficar clínico.
-  const rim = new THREE.DirectionalLight(0xfff2e0, 0.55);
+  // Contorno branco também: qualquer luz morna volta a amarelar o scan.
+  const rim = new THREE.DirectionalLight(0xffffff, 0.55);
   rim.position.set(0, 1.5, -4.5);
   scene.add(rim);
 

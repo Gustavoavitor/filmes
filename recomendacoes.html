@@ -15,18 +15,12 @@
   <header class="site-header" role="banner">
     <div class="header-top">
       <a href="index.html" class="site-logo" aria-label="Cinemateca Pessoal — Página Inicial">
-        <span class="logo-subtitle">est. mmxxiv</span>
         <span class="logo-title">
           <span class="logo-star">✦</span>
           Cinemateca<span class="logo-frio">&nbsp;Pessoal</span>
           <span class="logo-star">✦</span>
         </span>
       </a>
-      <nav class="site-nav" role="navigation" aria-label="Navegação principal">
-        <a href="index.html" class="nav-link" id="nav-colecao">Coleção</a>
-        <a href="recomendacoes.html" class="nav-link active" id="nav-recomendacoes" aria-current="page">Recomendações</a>
-        <a href="admin.html" class="nav-admin-btn" id="nav-admin">⚙ Admin</a>
-      </nav>
     </div>
     <div class="film-strip" role="presentation" aria-hidden="true"></div>
   </header>
@@ -107,5 +101,16 @@
   <script src="js/rating.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/recomendacoes.js"></script>
+
+  <!-- Barra de navegação flutuante, no centro inferior — a referência é a
+       da Cinemateca Brasileira. As lâmpadas mantêm o ar de marquise. -->
+  <nav class="barra-marquise" role="navigation" aria-label="Navegação principal">
+    <span class="barra-lampadas" aria-hidden="true"></span>
+    <div class="barra-itens">
+      <a href="index.html" class="barra-item" id="nav-colecao">Coleção</a>
+      <a href="recomendacoes.html" class="barra-item ativo" id="nav-recomendacoes">Recomendações</a>
+      <a href="admin.html" class="barra-item barra-item--admin" id="nav-admin">Admin</a>
+    </div>
+  </nav>
 </body>
 </html>

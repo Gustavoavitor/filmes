@@ -4,205 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalhes do Filme — Cinemateca Pessoal</title>
-  <meta name="description" content="Detalhes, resenha e visualização 3D do filme na coleção da Cinemateca Pessoal." />
+  <meta name="robots" content="noindex" />
   <link rel="stylesheet" href="css/main.css" />
+  <script>
+    // A ficha do filme deixou de ser uma página e virou uma sobreposição
+    // sobre a coleção, para o desfoque atrás ser a grade de verdade e o
+    // fechar devolver o usuário onde ele estava. Esta página fica só para
+    // não quebrar links antigos.
+    (function () {
+      const id = new URLSearchParams(location.search).get('id');
+      location.replace(id ? `index.html?film=${encodeURIComponent(id)}` : 'index.html');
+    })();
+  </script>
 </head>
 <body>
-
-  <!-- ══════════════════════════════════════════════════
-       HEADER
-  ══════════════════════════════════════════════════ -->
-  <header class="site-header" role="banner">
-    <div class="header-top">
-      <a href="index.html" class="site-logo" aria-label="Cinemateca Pessoal — Página Inicial">
-        <span class="logo-subtitle">est. mmxxiv</span>
-        <span class="logo-title">
-          <span class="logo-star">✦</span>
-          Cinemateca<span class="logo-frio">&nbsp;Pessoal</span>
-          <span class="logo-star">✦</span>
-        </span>
-      </a>
-      <nav class="site-nav" role="navigation" aria-label="Navegação principal">
-        <a href="index.html" class="nav-link" id="nav-colecao">Coleção</a>
-        <a href="recomendacoes.html" class="nav-link" id="nav-recomendacoes">Recomendações</a>
-        <a href="admin.html" class="nav-admin-btn" id="nav-admin">⚙ Admin</a>
-      </nav>
-    </div>
-    <div class="film-strip" role="presentation" aria-hidden="true"></div>
-  </header>
-
-  <!-- Letreiro vertical, como o do Cine São Geraldo. Só aparece
-       em telas largas; abaixo disso roubaria largura do conteúdo. -->
-  <aside class="blade" aria-hidden="true">
-    <span class="blade-lampada"></span>
-    <span>C</span><span>I</span><span>N</span><span>E</span>
-    <span class="blade-lampada"></span>
-  </aside>
-
-
-  <!-- ══════════════════════════════════════════════════
-       FILM HERO (dynamic background)
-  ══════════════════════════════════════════════════ -->
-  <div class="film-hero" id="film-hero">
-    <div class="film-hero-bg" id="film-hero-bg" aria-hidden="true"></div>
-    <div class="film-hero-content" id="film-hero-content">
-      <div class="loading-spinner" style="padding:4rem 0;">
-        <div class="spinner-reel" role="progressbar" aria-label="Carregando filme"></div>
-        <span class="loading-text">Carregando ficha técnica…</span>
-      </div>
-    </div>
-  </div>
-
-  <main id="film-main" style="display:none;" role="main">
-
-    <!-- ══════════════════════════════════════════════════
-         PALCO — o scan 3D grande, com a capa ao lado
-    ══════════════════════════════════════════════════ -->
-    <section class="palco" aria-label="Embalagem física">
-
-      <div class="palco-3d">
-        <div class="viewer-3d-container" id="viewer-3d-container"
-             aria-label="Visualizador 3D interativo — arraste para girar"></div>
-        <span class="viewer-3d-label">✦ &nbsp; Arraste para inspecionar &nbsp; ✦</span>
-      </div>
-
-      <aside class="palco-lado">
-        <figure class="palco-capa">
-          <img class="film-main-cover" id="film-cover-img" src="" alt="" />
-          <figcaption class="palco-capa-legenda">Capa</figcaption>
-        </figure>
-
-        <!-- Avaliação + acesso ao trailer -->
-        <div class="rating-panel" id="rating-panel">
-          <div class="rating-panel-header">Avaliação</div>
-          <div id="my-rating-block"></div>
-
-          <button type="button" class="btn-bluray" id="btn-trailer" style="display:none"
-                  aria-label="Assistir ao trailer">
-            <span class="btn-bluray-disco" aria-hidden="true">
-              <svg viewBox="0 0 40 40">
-                <circle class="disco-borda"  cx="20" cy="20" r="18" />
-                <circle class="disco-trilha" cx="20" cy="20" r="13" />
-                <circle class="disco-trilha" cx="20" cy="20" r="9.5" />
-                <circle class="disco-furo"   cx="20" cy="20" r="4.5" />
-                <path   class="disco-play"   d="M17.5 15.5l7 4.5-7 4.5z" />
-              </svg>
-            </span>
-            <span class="btn-bluray-texto">
-              <strong>Assistir ao trailer</strong>
-              <em>Blu-ray · reprodução</em>
-            </span>
-          </button>
-
-          <div class="community-rating" id="community-rating" style="display:none;">
-            <div>
-              <div class="rating-mini-label">Comunidade</div>
-              <div id="community-stars"></div>
-            </div>
-            <div style="text-align:right;">
-              <div id="community-count" class="rating-mini-label"></div>
-              <div id="community-avg" class="community-avg-num"></div>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- A ficha ocupa a sobra abaixo do visor: a coluna da capa é bem
-           mais alta que o 3D, e sem isso ficava um vão em branco. -->
-      <section class="film-info-section" id="film-info" aria-label="Informações do filme">
-        <!-- Injected by JS -->
-      </section>
-
-    </section>
-
-    <!-- ══════════════════════════════════════════════════
-         COMENTÁRIOS
-    ══════════════════════════════════════════════════ -->
-    <div class="comments-wrap">
-      <div class="comments-section" id="comments-section">
-        <div class="section-header" style="margin-bottom:1.5rem;text-align:left;">
-          <span class="section-label">O que dizem</span>
-          <h2 class="section-title" style="font-size:clamp(1.4rem,3vw,2.2rem)">Comentários</h2>
-        </div>
-
-        <div class="comment-form">
-          <form id="comment-form" novalidate>
-            <div class="comment-form-topo">
-              <div class="form-group">
-                <label class="form-label" for="comment-name">Seu nome</label>
-                <input type="text" id="comment-name" class="form-input" required placeholder="ex: Cinéfilo Anônimo" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="comment-rating-container">Sua nota</label>
-                <div id="comment-rating-container"></div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="comment-text">Comentário</label>
-              <textarea id="comment-text" class="form-textarea" rows="4" placeholder="O que você achou deste filme?"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary" id="comment-submit-btn">✦ Enviar Comentário</button>
-          </form>
-        </div>
-
-        <div id="comments-list">
-          <div class="loading-spinner">
-            <div class="spinner-reel"></div>
-            <span class="loading-text">Carregando comentários…</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- ══════════════════════════════════════════════════
-       MODAL DE TRAILER
-  ══════════════════════════════════════════════════ -->
-  <div class="trailer-modal" id="trailer-modal" role="dialog" aria-modal="true" aria-labelledby="trailer-modal-title">
-    <div class="trailer-modal-inner">
-      <div class="trailer-modal-header">
-        <span class="trailer-modal-title" id="trailer-modal-title">Trailer</span>
-        <button type="button" class="trailer-modal-close" id="btn-fechar-trailer" aria-label="Fechar trailer">✕ Fechar</button>
-      </div>
-      <div class="trailer-modal-body">
-        <iframe id="trailer-iframe" src="" title="Trailer" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════
-       FOOTER
-  ══════════════════════════════════════════════════ -->
-  <footer class="site-footer" role="contentinfo">
-    <div class="footer-logo">Cinemateca Pessoal</div>
-    <div class="footer-divider" aria-hidden="true"></div>
-    <p class="footer-text">Uma coleção de mídias físicas com amor pelo cinema</p>
-  </footer>
-
-  <div class="toast-container" id="toast-container" aria-live="assertive"></div>
-
-  <!-- ══════════════════════════════════════════════════
-       SCRIPTS
-  ══════════════════════════════════════════════════ -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-  <!-- Three.js entra como ES module: GLTFLoader, DRACOLoader e OrbitControls
-       saíram do bundle global no r148 e só existem em examples/jsm. -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
-
-  <script src="js/config.js"></script>
-  <script src="js/rating.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/projecao.js"></script>
-  <script type="module" src="js/viewer3d.js"></script>
-  <script src="js/filme.js"></script>
+  <noscript>
+    <p style="font-family:system-ui;padding:2rem">
+      A ficha do filme agora abre dentro da coleção.
+      <a href="index.html">Ir para a coleção</a>.
+    </p>
+  </noscript>
 </body>
 </html>

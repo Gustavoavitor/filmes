@@ -216,9 +216,11 @@ function ehAmbienteLocal() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!ehAmbienteLocal()) {
-    document.getElementById('nav-admin')?.remove();
-  }
+  const item = document.getElementById('nav-admin');
+  if (!item) return;
+  // O CSS esconde o item por padrão; rodando local ele reaparece.
+  if (ehAmbienteLocal()) item.style.display = 'block';
+  else item.remove();
 });
 
 function escapeHtml(str) {

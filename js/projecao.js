@@ -27,17 +27,37 @@ function noProximoQuadro(fn) {
 
 // ── Saída: roda a projeção e então navega ────────────────────
 function projetarE(destino) {
-  if (querMenosMovimento()) { window.location.href = destino; return; }
+  projetarEntao(() => { window.location.href = destino; }, true);
+}
 
-  // Marca para a próxima página abrir com o facho de luz.
-  try { sessionStorage.setItem(CHAVE_ENTRADA, '1'); } catch {}
+/**
+ * Roda a projeção e executa `aoFim` quando ela termina. Serve tanto para
+ * navegar quanto para abrir a ficha por cima da coleção, que não troca
+ * de página.
+ * @param {Function} aoFim
+ * @param {boolean} vaiTrocarDePagina  marca o facho de luz na chegada
+ */
+function projetarEntao(aoFim, vaiTrocarDePagina = false) {
+  if (querMenosMovimento()) { aoFim(); return; }
+
+  if (vaiTrocarDePagina) {
+    try { sessionStorage.setItem(CHAVE_ENTRADA, '1'); } catch {}
+  }
 
   const tela = montarTela();
   document.body.appendChild(tela);
   document.body.style.overflow = 'hidden';
 
   noProximoQuadro(() => tela.classList.add('projetando'));
-  setTimeout(() => { window.location.href = destino; }, DURACAO);
+  setTimeout(() => {
+    aoFim();
+    if (!vaiTrocarDePagina) {
+      // Sem troca de página ninguém limpa a tela: é aqui.
+      tela.classList.remove('projetando');
+      document.body.style.overflow = '';
+      setTimeout(() => tela.remove(), 400);
+    }
+  }, DURACAO);
 }
 
 function montarTela() {
@@ -110,12 +130,19 @@ function interceptarLinksDeFilme() {
     if (!alvo) return;
     if (alvo.target === '_blank') return;
 
-    const destino = alvo.tagName === 'A'
-      ? alvo.getAttribute('href')
-      : `filme.html?id=${encodeURIComponent(alvo.dataset.filmeId)}`;
-
     e.preventDefault();
     e.stopPropagation();
+
+    // Na coleção a ficha abre por cima, sem trocar de página: a projeção
+    // roda e some, em vez de servir de ponte entre dois documentos.
+    if (alvo.dataset.filmeId && typeof window.abrirFicha === 'function') {
+      projetarEntao(() => window.abrirFicha(alvo.dataset.filmeId));
+      return;
+    }
+
+    const destino = alvo.tagName === 'A'
+      ? alvo.getAttribute('href')
+      : `index.html?film=${encodeURIComponent(alvo.dataset.filmeId)}`;
     projetarE(destino);
   }, true);   // fase de captura: chega antes do handler do card
 }
@@ -126,3 +153,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.projetarE = projetarE;
+window.projetarEntao = projetarEntao;

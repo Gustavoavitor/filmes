@@ -57,10 +57,11 @@ export class Viewer3D {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    // Mapeamento de tons com exposição alta: o scan sai bem mais legível
-    // do que a renderização crua, que ficava escura demais.
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.35;
+    // ACES esquentava a imagem, e o amarelado era justamente a queixa.
+    // Linear não desloca matiz nenhum; a exposição levanta as sombras.
+    // (NeutralToneMapping só existe do r162 em diante, e estamos no r160.)
+    this.renderer.toneMapping = THREE.LinearToneMapping;
+    this.renderer.toneMappingExposure = 1.12;
     this.container.appendChild(this.renderer.domElement);
 
     // Cena

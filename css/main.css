@@ -3380,3 +3380,466 @@ textarea {
 .film-card-inner::after {
   content: none;
 }
+
+/* ============================================================
+   27. MARQUISE INFERIOR, CARD MÍNIMO E A FICHA
+   ============================================================
+   Referências: a barra flutuante da Cinemateca Brasileira, e o
+   painel translúcido sobre a cena 3D do Criterion Closet.
+   Paleta e tipografia continuam as da repintura.
+   ============================================================ */
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Barra de navegação, centro inferior ─────────────────────
+   Na Cinemateca ela é uma pílula vermelha flutuando sobre o
+   conteúdo. As lâmpadas mantêm o ar de marquise. */
+.barra-marquise {
+  position: fixed;
+  inset-block-end: var(--space-6);
+  inset-inline: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.barra-itens {
+  display: flex;
+  align-items: stretch;
+  pointer-events: auto;
+  background: var(--red-cinema);
+  border: 2px solid var(--gold-dark);
+  border-radius: var(--raio-pill);
+  box-shadow: 0 10px 34px rgba(23, 19, 28, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.barra-item {
+  font-family: var(--font-marquee);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #FFE9D2;
+  text-decoration: none;
+  padding: var(--space-3) var(--space-6);
+  border-inline-end: 1px solid rgba(255, 233, 210, 0.28);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.barra-item:last-child { border-inline-end: none; }
+
+.barra-item:hover,
+.barra-item:focus-visible {
+  background: var(--red-light);
+  color: #fff;
+}
+
+.barra-item.ativo {
+  background: var(--breu);
+  color: var(--gold-light);
+}
+
+/* Fileira de lâmpadas acompanhando a curva da pílula */
+.barra-lampadas {
+  position: absolute;
+  inset-block-start: -9px;
+  inset-inline: 50%;
+  translate: -50% 0;
+  width: min(94%, 460px);
+  height: 8px;
+  background-image: radial-gradient(circle at center,
+    #FFE9BE 0 1.9px, var(--gold) 1.9px 3px, transparent 3.2px);
+  background-size: 17px 8px;
+  background-repeat: repeat-x;
+  background-position: center;
+  filter: drop-shadow(0 0 5px rgba(200, 149, 67, 0.6));
+  pointer-events: none;
+}
+
+/* O rodapé precisa de espaço para a barra não cobrir o texto */
+.site-footer { padding-block-end: calc(var(--space-16) + var(--space-8)); }
+
+/* O admin só existe rodando local */
+.barra-item--admin { display: none; }
+
+/* ── Card da coleção: só a capa e o essencial ────────────────
+   Referência: o cartão do Criterion Closet, que mostra a capa solta
+   e embaixo uma linha discreta. A moldura saiu inteira. */
+.film-card-inner {
+  background: none;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+  border-radius: 0;
+}
+
+.film-card:hover .film-card-inner { box-shadow: none; }
+
+.card-poster-wrap {
+  background: none;
+  overflow: visible;
+  filter: drop-shadow(0 14px 24px rgba(23, 19, 28, 0.32));
+}
+
+.card-legenda {
+  margin-block-start: var(--space-4);
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+.film-card:hover .card-legenda { color: var(--charcoal-mid); }
+
+/* Sem moldura, a grade pede mais ar entre as capas */
+.films-grid { gap: var(--space-10) var(--space-6); }
+
+/* ── Recomendações: capa quadrada de novo ────────────────────
+   Só o cartaz do destaque continua arredondado. */
+.rec-card,
+.rec-card-poster,
+.rec-card .card-poster-placeholder {
+  border-radius: 0;
+}
+
+.rec-featured-poster,
+.rec-cartaz { border-radius: var(--raio-lg); }
+
+/* ── Ingresso em vermelho ────────────────────────────────────
+   O link de assistir é a ação principal da recomendação, e o papel
+   envelhecido não dava esse peso. */
+.ingresso {
+  background: linear-gradient(150deg, var(--red-light) 0%, var(--red-cinema) 100%);
+  border-color: #7E2415;
+  color: #FFF1E8;
+  box-shadow: 0 6px 18px rgba(179, 51, 32, 0.34);
+}
+
+.ingresso:hover { filter: brightness(1.08); }
+
+.ingresso-cabecalho { color: rgba(255, 241, 232, 0.72); }
+.ingresso-plataforma { color: #FFF6EE; }
+.ingresso-obs { color: rgba(255, 241, 232, 0.66); }
+
+.ingresso-canhoto {
+  background: rgba(23, 19, 28, 0.24);
+  border-inline-start-color: rgba(255, 241, 232, 0.5);
+}
+
+.ingresso-canhoto-acao { color: var(--gold-light); }
+.ingresso-serie { color: rgba(255, 241, 232, 0.6); }
+
+/* ============================================================
+   A FICHA — sobreposição sobre a coleção
+   ============================================================ */
+.ficha {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  opacity: 0;
+  transition: opacity 0.26s ease;
+}
+
+.ficha.aberta { opacity: 1; }
+body.com-ficha { overflow: hidden; }
+
+/* O desfoque é da grade de verdade, atrás */
+.ficha-fundo {
+  position: absolute;
+  inset: 0;
+  background: rgba(19, 15, 24, 0.72);
+  backdrop-filter: blur(18px) saturate(0.9);
+  -webkit-backdrop-filter: blur(18px) saturate(0.9);
+}
+
+.ficha-fechar {
+  position: fixed;
+  inset-block-start: var(--space-5);
+  inset-inline-end: var(--space-5);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-marquee);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--parchment);
+  background: rgba(23, 19, 28, 0.66);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--gold-dark);
+  border-radius: var(--raio-pill);
+  transition: all var(--transition-fast);
+}
+
+.ficha-fechar:hover,
+.ficha-fechar:focus-visible {
+  color: var(--gold-light);
+  border-color: var(--gold);
+  background: rgba(23, 19, 28, 0.85);
+}
+
+.ficha-rolagem {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* ── Palco: info à esquerda, scan no centro, cartaz à direita ─ */
+.ficha-palco {
+  position: sticky;
+  inset-block-start: 0;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 0.9fr);
+  gap: var(--space-8);
+  align-items: center;
+  padding: var(--space-16) var(--space-8) var(--space-10);
+  max-width: 1600px;
+  margin-inline: auto;
+}
+
+/* Painéis translúcidos, como o .chrome do Criterion */
+.ficha-info,
+.ficha-lado {
+  background: rgba(24, 19, 30, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 149, 67, 0.28);
+  border-radius: 22px;
+  padding: var(--space-6);
+  max-height: 78vh;
+  overflow-y: auto;
+}
+
+.ficha-nome {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.3rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  color: var(--cal, #EFE3CC);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.ficha-nome--menor { font-size: clamp(1.1rem, 2vw, 1.5rem); }
+
+.ficha-original {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--neon-gelo);
+  margin: var(--space-2) 0 var(--space-5);
+}
+
+.ficha-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  margin: 0 0 var(--space-5);
+}
+
+.ficha-dado dt {
+  font-family: var(--font-marquee);
+  font-size: 0.52rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-block-end: 3px;
+}
+
+.ficha-dado dd {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: #E4D9C6;
+  overflow-wrap: break-word;
+}
+
+.ficha-sinopse {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: #CFC4B2;
+  margin: 0 0 var(--space-5);
+}
+
+.ficha-generos { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* ── O scan, no centro ───────────────────────────────────────*/
+.ficha-scan {
+  position: relative;
+  width: 100%;
+  height: min(74vh, 680px);
+  /* Cinza neutro de estúdio: qualquer creme aqui puxa o scan para o
+     amarelo, que era a queixa. */
+  background: radial-gradient(ellipse 70% 60% at 50% 42%,
+    #FCFCFD 0%, #ECECEE 46%, #D8D8DC 100%);
+  border: 1px solid rgba(200, 149, 67, 0.35);
+  border-radius: 22px;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.ficha-scan:active { cursor: grabbing; }
+.ficha-scan canvas { width: 100% !important; height: 100% !important; }
+
+.ficha-scan-aviso {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-marquee);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  padding: var(--space-6);
+}
+
+/* ── Coluna direita: cartaz, nota, trailer ───────────────────*/
+.ficha-cartaz { margin: 0 0 var(--space-5); }
+
+.ficha-cartaz img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--raio-md);
+  border: 1px solid rgba(200, 149, 67, 0.35);
+}
+
+.ficha-nota {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+  border-block-start: 1px solid rgba(200, 149, 67, 0.22);
+}
+
+.ficha-sem-nota {
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.ficha-lado .btn-bluray { margin-block-start: var(--space-3); }
+
+/* ── Comunidade, revelada na rolagem ─────────────────────────*/
+.ficha-comunidade {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-8) calc(var(--space-24) + var(--space-8));
+  background: rgba(24, 19, 30, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(200, 149, 67, 0.28);
+  border-radius: 22px 22px 0 0;
+}
+
+.ficha-comunidade-topo { margin-block-end: var(--space-6); }
+
+.ficha-media {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: rgba(200, 149, 67, 0.08);
+  border: 1px solid rgba(200, 149, 67, 0.24);
+  border-radius: var(--raio-md);
+  margin-block-end: var(--space-6);
+}
+
+.ficha-media-num {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  color: var(--gold-light);
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha-form { margin-block-end: var(--space-8); }
+
+.ficha-form-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.ficha-form .form-label { color: var(--gold); }
+
+.ficha-form .form-input,
+.ficha-form .form-textarea {
+  background: rgba(12, 10, 16, 0.55);
+  border-color: rgba(200, 149, 67, 0.3);
+  color: #E4D9C6;
+}
+
+.ficha-lista { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.ficha-lista .rec-comentario {
+  background: rgba(12, 10, 16, 0.5);
+  border-inline-start-color: var(--gold-dark);
+  border-radius: var(--raio-sm);
+}
+
+.ficha-lista .rec-comentario-autor { color: var(--cal, #EFE3CC); }
+.ficha-lista .rec-comentario-texto { color: #C7BCA9; }
+
+.ficha-vazio {
+  font-family: var(--font-marquee);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  padding-block: var(--space-6);
+}
+
+/* ── Mobile ──────────────────────────────────────────────────*/
+@media (max-width: 1080px) {
+  .ficha-palco {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    position: static;
+    padding: calc(var(--space-16) + var(--space-6)) var(--space-4) var(--space-8);
+    gap: var(--space-6);
+  }
+  .ficha-scan { height: min(56vh, 460px); order: -1; }
+  .ficha-info, .ficha-lado { max-height: none; }
+  .ficha-comunidade { border-radius: 22px; margin-inline: var(--space-4); }
+}
+
+@media (max-width: 560px) {
+  .ficha-form-linha { grid-template-columns: 1fr; }
+  .ficha-fechar-texto { display: none; }
+  .ficha-fechar { padding: var(--space-3); }
+  .barra-item { padding: var(--space-3) var(--space-4); font-size: 0.58rem; }
+  .films-grid { gap: var(--space-8) var(--space-4); }
+}
+
+/* display na classe vence a regra nativa de [hidden], e a caixa da média
+   aparecia vazia quando ninguém tinha votado ainda. */
+.ficha-media[hidden] { display: none; }
