@@ -54,11 +54,18 @@ class StarRating {
 
   // ── SVG: defs do tema + as cinco estrelas ───────────────────
   _svg() {
+    // O chuvisco vai numa camada própria por cima, e não como filtro do
+    // preenchimento: filtro no preenchimento é destrutivo, e se ele falha
+    // a estrela some. Assim a pior hipótese é ficar sem o chuvisco.
+    const estatica = this.tema === 'videodrome';
+
     const estrelas = [1, 2, 3, 4, 5].map(i => `
       <svg class="estrela" viewBox="0 0 24 24" aria-hidden="true">
         <path class="estrela-base" d="${CAMINHO_ESTRELA}" />
         <path class="estrela-brilho" d="${CAMINHO_ESTRELA}"
               fill="url(#${this.uid}-g${i})" />
+        ${estatica ? `<path class="estrela-estatica" d="${CAMINHO_ESTRELA}"
+              fill="url(#${this.uid}-g${i})" />` : ''}
         <path class="estrela-contorno" d="${CAMINHO_ESTRELA}" />
       </svg>`).join('');
 
@@ -96,7 +103,7 @@ class StarRating {
     if (this.tema === 'videodrome') {
       // Chuvisco de canal fora do ar, rolando sem parar.
       return `
-        <filter id="${this.uid}-chuvisco" x="-20%" y="-20%" width="140%" height="140%">
+        <filter id="${this.uid}-chuvisco" x="0%" y="0%" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.02 0.85" numOctaves="3" seed="3" result="ruido">
             <animate attributeName="seed" values="1;9;3;7;2;8;1" dur="0.7s" repeatCount="indefinite" />
           </feTurbulence>
@@ -104,8 +111,9 @@ class StarRating {
           <feComponentTransfer in="cinza" result="contraste">
             <feFuncA type="linear" slope="2.2" intercept="-0.35" />
           </feComponentTransfer>
-          <feComposite in="contraste" in2="SourceGraphic" operator="in" result="estatica" />
-          <feBlend in="SourceGraphic" in2="estatica" mode="screen" />
+          <!-- Recorta o chuvisco na forma da estrela e para por aqui: quem
+               compõe com o preenchimento é o mix-blend-mode, no CSS. -->
+          <feComposite in="contraste" in2="SourceGraphic" operator="in" />
         </filter>
         <filter id="${this.uid}-derrete" x="-45%" y="-45%" width="190%" height="190%">
           <feTurbulence type="fractalNoise" baseFrequency="0.015 0.06" numOctaves="2" seed="5" result="onda" />
@@ -187,7 +195,8 @@ class StarRating {
       if (this.tema === 'veludo') {
         brilho.style.filter = parte > 0 ? `url(#${this.uid}-veludo)` : '';
       } else if (this.tema === 'videodrome') {
-        brilho.style.filter = parte > 0 ? `url(#${this.uid}-chuvisco)` : '';
+        const estatica = svg.querySelector('.estrela-estatica');
+        if (estatica) estatica.style.filter = parte > 0 ? `url(#${this.uid}-chuvisco)` : '';
       }
     });
 

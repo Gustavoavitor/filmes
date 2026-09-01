@@ -3085,3 +3085,298 @@ body { letter-spacing: 0.005em; }
   border-color: rgba(200, 149, 67, 0.55);
   color: #E4D9C6;
 }
+
+/* ============================================================
+   26. CANTOS SUAVES E CURSOR DE PELÍCULA
+   ============================================================
+   O tema de rua estava todo em canto vivo, e isso deixava as fichas
+   duras de ler. A referência do Criterion Closet resolve isso com uma
+   escala curta e consistente: 8px em card e painel, 999px nos
+   controles, 12–16px nos contêineres grandes. O vintage continua na
+   cor, na tipografia e no neon; o moderno entra no raio e no respiro.
+   ============================================================ */
+
+:root {
+  /* Escala de raio — medida do Criterion Closet */
+  --raio-xs:   4px;    /* selos, marcadores pequenos */
+  --raio-sm:   8px;    /* cards e painéis: o mais usado */
+  --raio-md:   12px;   /* campos, quadros, modais */
+  --raio-lg:   16px;   /* superfícies grandes: visor, billboard */
+  --raio-pill: 999px;  /* controles: botões, filtros, etiquetas */
+
+  /* Contornos mais discretos — o canto arredondado pede traço fino */
+  --traco-suave: color-mix(in srgb, var(--parchment) 70%, transparent);
+}
+
+/* ── Cursor de película ──────────────────────────────────────
+   Padrão: a seta de sempre, com as perfurações de 35mm descendo
+   pelo corpo. Mantém a ponta, então não se perde precisão.
+   Clicável: um fotograma com o triângulo de play.
+   Campos de texto ficam com o I-beam nativo: trocar ali atrapalha. */
+body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='30' viewBox='0 0 26 30'%3E%3Cpath d='M3.5 2.2 L3.5 22 L9 16.8 L12.8 25.4 L16.6 23.7 L13 15.4 L20.2 15.1 Z' fill='%23EFE3CC' stroke='%2317131C' stroke-width='1.9' stroke-linejoin='round'/%3E%3Crect x='5.3' y='5' width='2.1' height='2.1' rx='0.5' fill='%2317131C'/%3E%3Crect x='5.3' y='8.9' width='2.1' height='2.1' rx='0.5' fill='%2317131C'/%3E%3Crect x='5.3' y='12.8' width='2.1' height='2.1' rx='0.5' fill='%2317131C'/%3E%3C/svg%3E") 4 3, auto;
+}
+
+a,
+button,
+summary,
+[role="button"],
+.film-card,
+.rec-card,
+.estrela,
+.ingresso,
+.billboard-dot,
+.viewer-tab,
+.filter-btn {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Crect x='4' y='5' width='22' height='20' rx='3.5' fill='%23EFE3CC' stroke='%2317131C' stroke-width='2'/%3E%3Crect x='6.4' y='7.6' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='6.4' y='13.8' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='6.4' y='20' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='21.2' y='7.6' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='21.2' y='13.8' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='21.2' y='20' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Cpath d='M12.6 11.2 L18.6 15 L12.6 18.8 Z' fill='%23E2452F'/%3E%3C/svg%3E") 8 6, pointer;
+}
+
+/* O I-beam some se herdar o cursor do body */
+input,
+textarea,
+select,
+[contenteditable] {
+  cursor: auto;
+}
+
+input[type="search"],
+input[type="text"],
+input[type="url"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+textarea {
+  cursor: text;
+}
+
+/* O visor 3D é um manipulador: a mão de arrastar diz mais que a película */
+.viewer-3d-container { cursor: grab; }
+.viewer-3d-container:active { cursor: grabbing; }
+
+/* ── Controles: pílula ───────────────────────────────────────*/
+.btn,
+.filter-btn,
+.nav-admin-btn,
+.card-overlay-btn,
+.btn-mini,
+.rec-modal-btn,
+.trailer-modal-close,
+.drive-btn,
+.meta-tag,
+.admin-badge,
+.card-format-badge {
+  border-radius: var(--raio-pill);
+}
+
+/* O selo de formato encostava na quina do card; agora flutua */
+.card-format-badge {
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  border-inline-end: 1px solid var(--gold-dark);
+  border-block-end: 1px solid var(--gold-dark);
+  padding-inline: 10px;
+}
+
+/* ── Campos ──────────────────────────────────────────────────*/
+.filter-search,
+.filter-select,
+.form-input,
+.form-textarea {
+  border-radius: var(--raio-md);
+  border-color: var(--traco-suave);
+}
+
+.filter-search:focus,
+.filter-select:focus,
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--gold-dark);
+}
+
+/* ── Cards e painéis ─────────────────────────────────────────*/
+.film-card-inner,
+.rec-card,
+.comment-card,
+.rec-comentario,
+.admin-panel,
+.admin-gate-card,
+.empty-state {
+  border-radius: var(--raio-sm);
+  overflow: hidden;
+}
+
+.film-card-inner,
+.rec-card {
+  border-color: var(--traco-suave);
+}
+
+/* O ornamento de canto foi desenhado para quina viva: recuo para
+   dentro da curva, senão ele corta o arredondado. */
+.film-card-inner::before { inset-block-start: 10px; inset-inline-start: 10px; }
+.film-card-inner::after  { inset-block-end: 10px; inset-inline-end: 10px; }
+
+/* ── Contêineres grandes ─────────────────────────────────────*/
+.viewer-3d-container,
+.billboard-frame,
+.trailer-modal-inner,
+.trailer-wrap,
+.rec-ficha,
+.rec-cartaz,
+.rec-featured-inner,
+.palco-capa .film-main-cover,
+.capa-ausente,
+.blade {
+  border-radius: var(--raio-lg);
+}
+
+.rec-featured-inner,
+.rec-cartaz,
+.trailer-modal-inner { overflow: hidden; }
+
+.billboard-poster,
+.rec-featured-poster,
+.rec-card-poster,
+.card-poster,
+.admin-thumb,
+.admin-preview {
+  border-radius: var(--raio-sm);
+}
+
+/* A capa 3D vive num canvas: o slot é quem arredonda */
+.capa3d-slot { border-radius: var(--raio-sm); overflow: hidden; }
+
+/* ── Ficha do filme, mais sóbria ─────────────────────────────
+   O quadro de letras da bilheteria continua — fundo claro, trilhos e
+   rótulo vermelho —, mas com o traço fino, o canto redondo e o valor
+   em Archivo. Anton em caixa alta para nome de elenco gritava e
+   atrapalhava a leitura, que é o oposto de sóbrio. */
+.film-meta-grid {
+  border-radius: var(--raio-md);
+  border: 1px solid var(--traco-suave);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6);
+  gap: var(--space-4) var(--space-6);
+}
+
+.film-meta-grid .meta-item-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  opacity: 0.85;
+}
+
+.film-meta-grid .meta-item-value {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.45;
+  color: var(--charcoal);
+  overflow-wrap: break-word;
+}
+
+.film-synopsis,
+.rating-panel,
+.comment-form,
+.rec-elenco {
+  border-radius: var(--raio-md);
+}
+
+/* O estuque tinha a barra vermelha reta na base; agora acompanha a curva */
+.rating-panel,
+.comment-form {
+  border-block-end: none;
+  box-shadow: inset 0 -7px 0 0 var(--red-light);
+  padding-block-end: calc(var(--space-5) + 7px);
+}
+
+.btn-bluray { border-radius: var(--raio-md); }
+
+/* ── Ingresso: canto redondo sem perder os entalhes ──────────
+   A máscara radial que corta as laterais convive com o raio; o que
+   ela não pode é ser cortada pelo overflow do pai. */
+.ingresso { border-radius: var(--raio-sm); }
+.ingresso-canhoto {
+  border-start-end-radius: var(--raio-sm);
+  border-end-end-radius: var(--raio-sm);
+}
+
+/* ── Admin ───────────────────────────────────────────────────*/
+.admin-table { border-radius: var(--raio-sm); overflow: hidden; }
+.admin-thumb-empty { border-radius: var(--raio-xs); }
+.admin-warning { border-radius: var(--raio-sm); }
+
+/* ── Placa "Hoje" e letreiro: só o canto, o resto fica ───────*/
+.billboard-label { border-radius: var(--raio-xs); }
+.film-strip { border-radius: 0; }
+
+/* ── Respiro ─────────────────────────────────────────────────
+   Canto redondo com espaçamento apertado parece inchado. */
+.card-body { padding: var(--space-5); }
+.rec-card-body { padding: var(--space-5); }
+
+/* ── CSS defensivo ───────────────────────────────────────────*/
+.card-title,
+.rec-card-title,
+.meta-item-value,
+.comment-text,
+.rec-comentario-texto {
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Estas classes já declaravam cursor: pointer, e classe vence elemento —
+   sem repeti-las aqui o cursor de película não chegava nelas. */
+.btn,
+.filter-btn,
+.filter-select,
+.film-card,
+.viewer-tab,
+.drive-btn,
+.trailer-modal-close,
+.admin-nav-item,
+.billboard-dot,
+.btn-bluray,
+.rec-cartaz,
+.rec-modal-btn,
+.star-rating.interactive .estrela,
+.star-rating-input label {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Crect x='4' y='5' width='22' height='20' rx='3.5' fill='%23EFE3CC' stroke='%2317131C' stroke-width='2'/%3E%3Crect x='6.4' y='7.6' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='6.4' y='13.8' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='6.4' y='20' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='21.2' y='7.6' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='21.2' y='13.8' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Crect x='21.2' y='20' width='2.4' height='2.4' rx='0.6' fill='%2317131C'/%3E%3Cpath d='M12.6 11.2 L18.6 15 L12.6 18.8 Z' fill='%23E2452F'/%3E%3C/svg%3E") 8 6, pointer;
+}
+
+/* O select abre um menu nativo: a seta do sistema comunica melhor */
+.filter-select { cursor: pointer; }
+
+/* O friso sangra 12px para cada lado, e num cabeçalho de largura total
+   isso empurrava a página 12px na horizontal. `clip` corta a sangria sem
+   criar um contêiner de rolagem, que `hidden` criaria. */
+.section-header {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* O chuvisco do Videodrome é uma camada por cima do preenchimento, com
+   mix-blend-mode. Antes era um filtro aplicado ao próprio preenchimento,
+   e como o filtro é destrutivo a estrela saía vazia — só o contorno. */
+.star-rating.tema-videodrome .estrela-estatica {
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* Os cantos ornamentados foram desenhados para quina viva. Com o canto
+   redondo eles ficam soltos, lendo como sujeira em vez de moldura —
+   e o pedido era justamente uma ficha mais sóbria. */
+.film-card-inner::before,
+.film-card-inner::after {
+  content: none;
+}
