@@ -363,6 +363,15 @@ function fontesDe(rec) {
   return lista;
 }
 
+// Nome curto ganha corpo maior, nome longo encolhe: assim a linha ocupa
+// a largura do ingresso em vez de deixar um vão à direita.
+function medidaDoNome(nome) {
+  const n = (nome || '').length;
+  if (n <= 8)  return 'curto';
+  if (n <= 16) return 'medio';
+  return 'longo';
+}
+
 function montarIngressos(rec) {
   const fontes = fontesDe(rec);
   if (!fontes.length) {
@@ -373,7 +382,7 @@ function montarIngressos(rec) {
   }
 
   return fontes.map((f, i) => `
-    <a class="ingresso" href="${escapeHtml(f.url)}" target="_blank" rel="noopener">
+    <a class="ingresso ingresso--${medidaDoNome(f.plataforma)}" href="${escapeHtml(f.url)}" target="_blank" rel="noopener">
       <span class="ingresso-corpo">
         <span class="ingresso-cabecalho">Sessão · admite um</span>
         <span class="ingresso-plataforma">${escapeHtml(f.plataforma)}</span>

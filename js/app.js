@@ -116,6 +116,7 @@ function createCard(filme) {
         <div class="capa3d-slot"></div>
         ${posterHTML}
       </div>
+      <h2 class="card-titulo">${escapeHtml(filme.titulo)}</h2>
       <p class="card-legenda">${escapeHtml([filme.diretor, filme.ano].filter(Boolean).join(' · '))}</p>
     </div>
   `;

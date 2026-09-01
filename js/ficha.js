@@ -125,7 +125,7 @@ function renderFicha(f) {
       ? `<p class="ficha-original">${escapeHtml(f.titulo_original)}</p>` : ''}
     <dl class="ficha-dados">
       ${dados.map(([k, v]) => `
-        <div class="ficha-dado">
+        <div class="ficha-dado${k === 'Elenco' ? ' ficha-dado--largo' : ''}">
           <dt>${k}</dt>
           <dd>${escapeHtml(String(v))}</dd>
         </div>`).join('')}

@@ -3843,3 +3843,233 @@ body.com-ficha { overflow: hidden; }
 /* display na classe vence a regra nativa de [hidden], e a caixa da média
    aparecia vazia quando ninguém tinha votado ainda. */
 .ficha-media[hidden] { display: none; }
+
+/* ============================================================
+   28. AJUSTES — Cinemateca Brasileira nas informações
+   ============================================================ */
+
+:root {
+  /* Cinza pastel com um leve viés violeta, para conversar com o breu
+     sem virar cinza de escritório. */
+  --cinza:        #D7D4DA;
+  --cinza-claro:  #E6E4E9;
+  --cinza-escuro: #B9B5C0;
+  --filete:       #C2452F;   /* o filete vermelho que separa os campos */
+}
+
+/* ── 1. O título voltou ao card da coleção ───────────────────*/
+.card-titulo {
+  margin: var(--space-4) 0 2px;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1.15;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+.card-legenda { margin-block-start: 0; }
+
+/* ── 2. O trailer tem de vir na frente de tudo ───────────────
+   Estava em 9000, abaixo da ficha (9200) e do modal de
+   recomendação (9500) — por isso o vídeo abria atrás. */
+.trailer-modal { z-index: 9700; }
+
+/* ── 3. O texto do ingresso preenche a peça ──────────────────
+   Nome curto ganha corpo maior; nome longo encolhe e pode quebrar,
+   em vez de ser cortado com reticências e deixar um vão à direita. */
+.ingresso-corpo { display: flex; flex-direction: column; justify-content: center; }
+
+.ingresso-plataforma {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
+  line-height: 1.08;
+}
+
+.ingresso--curto .ingresso-plataforma { font-size: 1.5rem; letter-spacing: 0.01em; }
+.ingresso--medio .ingresso-plataforma { font-size: 1.15rem; }
+.ingresso--longo .ingresso-plataforma { font-size: 0.92rem; letter-spacing: 0.01em; }
+
+/* ── 4. Informações no padrão da Cinemateca ──────────────────
+   Lá os dados vêm em linha corrida, separados por filetes vermelhos
+   finos: 09 SET │ QUA │ 20h30 │ SESSÃO. É catálogo de arquivo, não
+   ornamento art déco. O friso sai daqui. */
+.section-header::before { content: none; }
+
+.ficha-dados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  background: var(--cinza-claro);
+  border: 1px solid var(--cinza-escuro);
+  border-radius: var(--raio-sm);
+  padding: var(--space-4) var(--space-2);
+  margin-block-end: var(--space-5);
+}
+
+.ficha-dado {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-inline: var(--space-4);
+  border-inline-end: 2px solid var(--filete);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ficha-dado:last-child { border-inline-end: none; }
+
+.ficha-dado dt {
+  font-family: var(--font-marquee);
+  font-size: 0.5rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #6E6A76;
+  margin: 0;
+}
+
+.ficha-dado dd {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  color: #221E28;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/* O elenco é longo demais para uma célula de linha: ocupa a faixa toda */
+.ficha-dado:has(dt:only-of-type) { }
+.ficha-dados .ficha-dado--largo {
+  flex-basis: 100%;
+  border-inline-end: none;
+  border-block-start: 1px solid var(--cinza-escuro);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+}
+
+/* O painel da esquerda acompanha: cinza pastel em vez de translúcido
+   escuro, para as informações lerem como ficha de acervo. */
+.ficha-info {
+  background: var(--cinza);
+  border-color: var(--cinza-escuro);
+  color: #221E28;
+}
+
+.ficha-info .ficha-nome { color: #17131C; }
+.ficha-info .ficha-original { color: #6E2A19; }
+.ficha-info .ficha-sinopse { color: #3A3542; }
+
+.ficha-info .meta-tag {
+  border-color: var(--cinza-escuro);
+  color: #4A4550;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* A ficha técnica da recomendação segue o mesmo padrão */
+.film-meta-grid {
+  background: var(--cinza-claro);
+  border-color: var(--cinza-escuro);
+  background-image: none;
+}
+
+.film-meta-grid .meta-item {
+  border-inline-end: 2px solid var(--filete);
+  padding-inline-end: var(--space-4);
+}
+
+.film-meta-grid .meta-item:last-child { border-inline-end: none; }
+.film-meta-grid .meta-item-label { color: #6E6A76; }
+.film-meta-grid .meta-item-value { color: #221E28; text-transform: uppercase; }
+
+/* ── 5. Destaque como billboard de cinema de rua ─────────────
+   O card vermelho chapado era genérico. O painel do Marabá tinha um
+   quadro escuro emoldurado por lâmpadas, com a arte pintada dentro e
+   uma tabuleta anunciando a sessão. */
+.rec-featured-card { position: relative; }
+
+.rec-featured-inner {
+  background: linear-gradient(168deg, #241C2B 0%, var(--breu) 60%, #0D0A11 100%);
+  border: 3px solid var(--gold-dark);
+  box-shadow:
+    0 0 0 7px rgba(23, 19, 28, 0.9),
+    0 0 0 9px var(--gold-dark),
+    0 22px 60px rgba(0, 0, 0, 0.55);
+  position: relative;
+  isolation: isolate;
+}
+
+/* As fileiras de lâmpadas que emolduravam o painel */
+.rec-featured-inner::before,
+.rec-featured-inner::after {
+  content: '';
+  position: absolute;
+  inset-inline: 10px;
+  height: 12px;
+  z-index: 2;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center,
+    #FFE9BE 0 2.2px, var(--gold) 2.2px 3.4px, rgba(200, 149, 67, 0.2) 3.4px 4.6px, transparent 4.8px);
+  background-size: 22px 12px;
+  background-repeat: repeat-x;
+  background-position: center;
+  filter: drop-shadow(0 0 5px rgba(200, 149, 67, 0.55));
+}
+
+.rec-featured-inner::before { inset-block-start: 6px; }
+.rec-featured-inner::after  { inset-block-end: 6px; }
+
+.rec-featured-info {
+  background: none;
+  padding-block: var(--space-10);
+}
+
+/* A tabuleta da sessão, torta como a do São Geraldo */
+.rec-featured-label {
+  display: inline-block;
+  background: var(--red-light);
+  color: #FFF6E8;
+  padding: 6px 18px 5px;
+  transform: rotate(-1.6deg);
+  box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.5);
+  border-radius: var(--raio-xs);
+  border: none;
+  margin-block-end: var(--space-5);
+}
+
+.rec-featured-label::before,
+.rec-featured-label::after { content: none; }
+
+/* O título do destaque ganha o tratamento de letra pintada */
+.rec-featured-info .rec-ficha-titulo {
+  color: var(--salmao);
+  text-shadow:
+    -2px -2px 0 #FFF6E8,  2px -2px 0 #FFF6E8,
+    -2px  2px 0 #FFF6E8,  2px  2px 0 #FFF6E8,
+     0   -2px 0 #FFF6E8,  0    2px 0 #FFF6E8,
+    -2px  0   0 #FFF6E8,  2px  0   0 #FFF6E8,
+     5px  6px 0 rgba(0, 0, 0, 0.55);
+}
+
+.rec-featured-info .rec-ficha-original { color: var(--neon-gelo); }
+.rec-featured-info .rec-ficha-sinopse  { color: #CFC4B2; }
+.rec-featured-info .meta-tag { border-color: rgba(200, 149, 67, 0.5); color: #E4D9C6; }
+
+@media (max-width: 900px) {
+  .ficha-dado {
+    flex-basis: 45%;
+    border-inline-end: none;
+    border-inline-start: 2px solid var(--filete);
+    margin-block-end: var(--space-3);
+  }
+  .film-meta-grid .meta-item { border-inline-end: none; border-inline-start: 2px solid var(--filete); padding-inline-start: var(--space-3); }
+  .rec-featured-info { padding-block: var(--space-8); }
+}
+
+/* .rec-featured-info é um flex em coluna, e nele align-items: stretch
+   estica a tabuleta até a borda mesmo sendo inline-block. */
+.rec-featured-label { align-self: flex-start; }
