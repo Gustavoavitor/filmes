@@ -242,8 +242,8 @@ export class Viewer3D {
       position:absolute; inset:0;
       display:flex; flex-direction:column;
       align-items:center; justify-content:center;
-      background: linear-gradient(135deg, #0f0603, #1a0805);
-      color: #c8a050;
+      background: linear-gradient(135deg, #0D0A11, #17131C);
+      color: #C89543;
       font-family: 'Special Elite', monospace;
       font-size: 0.65rem;
       letter-spacing: 0.25em;
@@ -252,7 +252,7 @@ export class Viewer3D {
       z-index: 10;
     `;
     this._loadingEl.innerHTML = `
-      <div style="width:40px;height:40px;border:3px solid #3d1508;border-top-color:#c8a050;border-radius:50%;animation:spin3d 0.8s linear infinite"></div>
+      <div style="width:40px;height:40px;border:3px solid #3A2E45;border-top-color:#C89543;border-radius:50%;animation:spin3d 0.8s linear infinite"></div>
       <div class="loading-pct">Carregando modelo...</div>
       <style>@keyframes spin3d{to{transform:rotate(360deg)}}</style>
     `;
@@ -303,10 +303,10 @@ export class Viewer3D {
         width:100%; height:100%; min-height:200px;
         display:flex; flex-direction:column;
         align-items:center; justify-content:center;
-        background: linear-gradient(135deg, #1a0805, #2c1205);
-        color: #c8a050; font-family: 'Special Elite', monospace;
+        background: linear-gradient(135deg, #17131C, #241C2B);
+        color: #C89543; font-family: 'Special Elite', monospace;
         font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase;
-        gap:12px; border:2px solid #9b7835;
+        gap:12px; border:2px solid #9A7130;
       ">
         <div style="font-size:3rem">📦</div>
         <div>${this.opts.titulo}</div>

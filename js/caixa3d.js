@@ -71,7 +71,7 @@ function texturaLombada(dim, titulo, corSpine) {
   ctx.save();
   ctx.translate(32, canvas.height / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillStyle = '#e8dec8';
+  ctx.fillStyle = '#EFE3CC';
   ctx.font = 'bold 14px Georgia, serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -116,16 +116,16 @@ function texturaPlaceholder(lado, titulo) {
   const ctx = canvas.getContext('2d');
 
   const g = ctx.createLinearGradient(0, 0, 400, 600);
-  g.addColorStop(0, '#1a0805');
-  g.addColorStop(1, lado === 'frente' ? '#3d1508' : '#0f0603');
+  g.addColorStop(0, '#17131C');
+  g.addColorStop(1, lado === 'frente' ? '#3A2E45' : '#0D0A11');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 400, 600);
 
-  ctx.strokeStyle = '#c8a050';
+  ctx.strokeStyle = '#C89543';
   ctx.lineWidth = 6;
   ctx.strokeRect(12, 12, 376, 576);
 
-  ctx.fillStyle = '#c8a050';
+  ctx.fillStyle = '#C89543';
   ctx.font = 'bold 26px Georgia, serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';

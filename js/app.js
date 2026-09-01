@@ -243,7 +243,7 @@ function renderBillboardSlide(idx) {
   if (f.capa_url) {
     posterEl = `<img class="billboard-poster" src="${f.capa_url}" alt="Capa de ${f.titulo}" />`;
   } else {
-    posterEl = `<div class="billboard-poster" style="background:linear-gradient(135deg,#1a0805,#3d1508);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:5rem;">📽</div>`;
+    posterEl = `<div class="billboard-poster" style="background:linear-gradient(135deg,var(--breu),#3A2E45);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:5rem;">📽</div>`;
   }
 
   const genresTags = f.generos
