@@ -28,7 +28,7 @@ function pagina(titulo: string, texto: string, status = 200) {
   <div style="max-width:520px;margin:0 auto;padding:80px 24px;text-align:center;">
     <p style="font-family:'Geist Mono',Courier,monospace;font-size:11px;letter-spacing:2.6px;
               text-transform:uppercase;color:#4A4750;margin:0 0 10px;">Cinemateca Pessoal</p>
-    <h1 style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-weight:400;font-size:34px;
+    <h1 style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-weight:400;font-size:34px;
                line-height:36px;text-transform:uppercase;margin:0 0 14px;">${titulo}</h1>
     <p style="font-size:15px;line-height:26px;color:#2A2833;margin:0 0 26px;">${texto}</p>
     <a href="${URL_SITE}/recomendacoes.html"

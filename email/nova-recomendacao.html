@@ -21,7 +21,7 @@
     /* Clientes que baixam webfont (Apple Mail, iOS, Thunderbird) ganham
        as fontes do site. O Gmail descarta este bloco inteiro — por isso
        tudo que importa está embutido tag por tag, e isto é só polimento. */
-    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@300..800&family=Geist+Mono:wght@300..600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=League+Gothic:wdth@75..100&family=Geist:wght@300..800&family=Geist+Mono:wght@300..600&display=swap');
 
     body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
     img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
@@ -30,7 +30,7 @@
     @media only screen and (max-width: 620px) {
       .quadro  { width: 100% !important; }
       .respiro { padding-left: 20px !important; padding-right: 20px !important; }
-      .display-grande { font-size: 30px !important; line-height: 31px !important; }
+      .display-grande { font-size: 34px !important; line-height: 35px !important; }
       .empilha { display: block !important; width: 100% !important; padding: 0 0 18px 0 !important; }
       .cartaz  { width: 100% !important; max-width: 100% !important; height: auto !important; }
     }
@@ -55,8 +55,8 @@
           <tr>
             <td bgcolor="#13121A" align="center" style="background-color:#13121A;padding:22px 24px 14px;border-radius:8px 8px 0 0;">
               <a href="{{URL_SITE}}" style="text-decoration:none;">
-                <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:22px;letter-spacing:1px;text-transform:uppercase;color:#FFF3E2;">Cinemateca</span>
-                <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:22px;letter-spacing:1px;text-transform:uppercase;color:#6BC5E8;">Pessoal</span>
+                <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:26px;letter-spacing:1px;text-transform:uppercase;color:#FFF3E2;">Cinemateca</span>
+                <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:26px;letter-spacing:1px;text-transform:uppercase;color:#6BC5E8;">Pessoal</span>
               </a>
             </td>
           </tr>
@@ -96,11 +96,11 @@
                   </td>
 
                   <td class="empilha" valign="top" style="padding:0;">
-                    <h1 class="display display-grande" style="margin:0 0 5px;font-family:'Anton','Arial Narrow',Impact,sans-serif;font-weight:400;font-size:33px;line-height:34px;letter-spacing:0.5px;text-transform:uppercase;color:#13121A;">
+                    <h1 class="display display-grande" style="margin:0 0 5px;font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-weight:400;font-size:39px;line-height:39px;letter-spacing:0.5px;text-transform:uppercase;color:#13121A;">
                       {{TITULO}}
                     </h1>
 
-                    <p style="margin:0 0 14px;font-family:'Geist',Helvetica,Arial,sans-serif;font-size:13px;line-height:18px;font-style:italic;color:#4A4750;">
+                    <p style="margin:0 0 14px;font-family:'Geist',Helvetica,Arial,sans-serif;font-size:13px;line-height:18px;font-weight:500;color:#4A4750;">
                       {{TITULO_ORIGINAL}}
                     </p>
 
@@ -109,21 +109,21 @@
                       <tr>
                         <td width="50%" style="width:50%;padding:9px 12px 11px;border-right:1px solid #3A3020;border-bottom:1px solid #3A3020;">
                           <span style="font-family:'Geist Mono',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">Diretor</span><br />
-                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{DIRETOR}}</span>
+                          <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:16px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{DIRETOR}}</span>
                         </td>
                         <td width="50%" style="width:50%;padding:9px 12px 11px;border-bottom:1px solid #3A3020;">
                           <span style="font-family:'Geist Mono',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">Ano</span><br />
-                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{ANO}}</span>
+                          <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:16px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{ANO}}</span>
                         </td>
                       </tr>
                       <tr>
                         <td style="padding:9px 12px 11px;border-right:1px solid #3A3020;">
                           <span style="font-family:'Geist Mono',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">País</span><br />
-                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{PAIS}}</span>
+                          <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:16px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{PAIS}}</span>
                         </td>
                         <td style="padding:9px 12px 11px;">
                           <span style="font-family:'Geist Mono',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">Duração</span><br />
-                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{DURACAO}}</span>
+                          <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:16px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{DURACAO}}</span>
                         </td>
                       </tr>
                     </table>
@@ -169,7 +169,7 @@
                         <tr>
                           <td valign="middle" style="padding:12px 16px 13px;">
                             <span style="font-family:'Geist Mono',Courier,monospace;font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:#F9CFC4;">Sessão · admite um</span><br />
-                            <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:21px;line-height:25px;letter-spacing:0.5px;text-transform:uppercase;color:#FFF6EE;">{{INGRESSO_PLATAFORMA}}</span>
+                            <span class="display" style="font-family:'League Gothic','Arial Narrow',Impact,sans-serif;font-size:24px;line-height:27px;letter-spacing:0.5px;text-transform:uppercase;color:#FFF6EE;">{{INGRESSO_PLATAFORMA}}</span>
                             {{INGRESSO_OBS}}
                           </td>
                           <td valign="middle" width="104" align="center" style="width:104px;padding:12px 10px 13px;border-left:2px dashed #F09B8A;">

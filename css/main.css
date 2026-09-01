@@ -3,25 +3,22 @@
    Vintage Cinema Aesthetic — Off-White Pastel + Gold
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@300..800&family=Geist+Mono:wght@300..600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=League+Gothic:wdth@75..100&family=Geist:wght@300..800&family=Geist+Mono:wght@300..600&display=swap');
 
-/* ── Acme Gothic (Adobe Fonts) ───────────────────────────────
-   A fonte de destaque do joinjuggle, desenhada por Mark Simonson a
-   partir do letreiro de fachada americana do começo do século XX.
-   É paga, mas vem incluída no Creative Cloud.
+/* ── League Gothic ───────────────────────────────────────────
+   A Acme Gothic saiu de cena por ser paga, e a substituta não é um
+   arranjo: a League Gothic é um revival do Alternate Gothic No. 1 da
+   ATF, de 1903 — a mesma letra de fachada americana em que a Acme
+   Gothic foi baseada. Livre (OFL), da League of Moveable Type, e na
+   Google Fonts.
 
-   Para ligar: em fonts.adobe.com, abra a Acme Gothic, clique em
-   "Add to Web Project", escolha os pesos Black (900) e SemiBold (600),
-   e o Adobe devolve um endereço .css. Aí basta descomentar as quatro
-   linhas abaixo e trocar o XXXXXXX pelo código do seu projeto.
-   Enquanto isso não acontece, a Anton segue no lugar dela.
+   Vem com eixo de largura variável (font-stretch, 75% a 100%), que é
+   como o pintor de letreiro trabalhava: aperta a letra quando o
+   quadro é estreito, solta quando há espaço.
 
-@import url('https://use.typekit.net/XXXXXXX.css');
-:root {
-  --font-display: 'acme-gothic', 'Anton', 'Arial Narrow', Impact, sans-serif;
-  --peso-display: 900;
-}
-   ──────────────────────────────────────────────────────────── */
+   Só tem o peso 400 e não tem itálico desenhado. A versão do Adobe
+   Fonts anuncia um itálico; a livre não tem, e aqui não faz falta
+   porque o itálico saiu do site inteiro (ver seção 34). */
 
 /* ============================================================
    1. CSS CUSTOM PROPERTIES (Design Tokens)
@@ -55,9 +52,9 @@
   --shadow-dark:  rgba(23, 19, 28, 0.45);
 
   /* Typography */
-  --font-display: 'Anton', 'Arial Narrow', Impact, sans-serif;
-  /* A Anton só tem um peso. A Acme Gothic tem Black; ao ligá-la, este
-     token vira 900 (ver o bloco comentado no topo do arquivo). */
+  --font-display: 'League Gothic', 'Arial Narrow', Impact, sans-serif;
+  /* A League Gothic só tem o peso 400: pedir mais faz o navegador
+     engrossar a letra por conta própria, e o resultado é borrado. */
   --peso-display: 400;
   --font-marquee: 'Geist Mono', ui-monospace, 'SF Mono', 'Courier New', monospace;
   /* Geist é a fonte de leitura do joinjuggle: uma grotesca neutra e
@@ -2876,8 +2873,8 @@ h1, h2, h3, h4, h5, h6 {
    25. CINEMA DE RUA — pele tirada das fotos de referência
    ============================================================ */
 
-/* ── A Anton só tem um peso e foi desenhada para caixa alta.
-      Peso e itálico nela viram falsificação do navegador. ──── */
+/* ── A League Gothic só tem um peso e foi desenhada para caixa
+      alta. Peso e itálico nela viram falsificação do navegador. ── */
 .logo-title, .billboard-title, .card-title, .film-title-lg,
 .section-title, .rec-card-title, .rec-ficha-titulo, .footer-logo,
 .admin-section-title, .recs-title, .rec-featured-label {
@@ -3092,7 +3089,7 @@ h1, h2, h3, h4, h5, h6 {
    pedia agora só borraria o texto. */
 body { letter-spacing: 0; }
 
-/* Anton em corpo pequeno precisa de respiro entre linhas */
+/* Condensada em corpo pequeno precisa de respiro entre linhas */
 .card-title { line-height: 1.15; letter-spacing: 0.03em; }
 .rec-card-title { line-height: 1.15; }
 
@@ -3273,7 +3270,7 @@ textarea {
 /* ── Ficha do filme, mais sóbria ─────────────────────────────
    O quadro de letras da bilheteria continua — fundo claro, trilhos e
    rótulo vermelho —, mas com o traço fino, o canto redondo e o valor
-   na fonte de leitura. Anton em caixa alta para nome de elenco gritava e
+   na fonte de leitura. Condensada em caixa alta para nome de elenco gritava e
    atrapalhava a leitura, que é o oposto de sóbrio. */
 .film-meta-grid {
   border-radius: var(--raio-md);
@@ -4462,3 +4459,72 @@ main > .section-header {
 .billboard-synopsis,
 .recs-description,
 .comment-text { font-weight: 350; }
+
+/* ============================================================
+   35. A LEAGUE GOTHIC PEDE OUTRO CORPO
+   ============================================================
+   Ela é bem mais estreita que a fonte anterior e tem traço mais
+   fino. Duas consequências: o mesmo corpo ocupa menos linha e pesa
+   menos na página, e o contorno pintado — calibrado para uma letra
+   grossa — entupia as contraformas.
+   ============================================================ */
+
+/* ── 1. Corpo maior, para o letreiro voltar a pesar ──────────*/
+.logo-title        { font-size: clamp(1.45rem, 3vw,   2.2rem); }
+.billboard-title   { font-size: clamp(2.6rem, 6.4vw,  5.2rem); }
+.section-title     { font-size: clamp(2.3rem, 5.2vw,  3.9rem); }
+.recs-title        { font-size: clamp(2.6rem, 6.4vw,  5.2rem); }
+.ficha-nome        { font-size: clamp(1.95rem, 3.4vw, 3rem); }
+.ficha-nome--menor { font-size: clamp(1.4rem, 2.6vw,  1.95rem); }
+.assinatura-titulo { font-size: clamp(1.8rem, 3.9vw,  2.9rem); }
+.rec-ficha-titulo  { font-size: 2.1rem; }
+.footer-logo       { font-size: 2.6rem; }
+.card-title        { font-size: 1.15rem; }
+.card-titulo       { font-size: 1.2rem; }
+.rec-card-title    { font-size: 1.3rem; }
+
+/* No billboard do destaque o título tem painel inteiro para ele */
+.rec-featured-info .rec-ficha-titulo { font-size: 2.9rem; }
+
+@media (max-width: 900px) {
+  .rec-ficha-titulo { font-size: 1.7rem; }
+  .rec-featured-info .rec-ficha-titulo { font-size: 2.2rem; }
+}
+
+/* ── 2. O contorno pintado acompanha a letra ─────────────────
+   Em px ele era fixo e, numa letra fina, virava massa. Em em ele
+   cresce e encolhe junto com o corpo — que é como o pintor de
+   letreiro trabalhava, com o pincel proporcional à altura. */
+.billboard-title,
+.ficha-info .ficha-nome,
+.rec-featured-info .rec-ficha-titulo {
+  text-shadow:
+    -0.022em -0.022em 0 #FFF6E8,  0.022em -0.022em 0 #FFF6E8,
+    -0.022em  0.022em 0 #FFF6E8,  0.022em  0.022em 0 #FFF6E8,
+     0       -0.022em 0 #FFF6E8,  0        0.022em 0 #FFF6E8,
+    -0.022em  0       0 #FFF6E8,  0.022em  0       0 #FFF6E8,
+     0.085em  0.1em   0 rgba(0, 0, 0, 0.55);
+}
+
+/* O neon do logo também era traço fixo sobre letra grossa */
+.logo-title { -webkit-text-stroke-width: 0.5px; }
+
+/* ── 3. O eixo de largura ────────────────────────────────────
+   A League Gothic é variável entre 75% e 100%. O letreiro grande
+   fica na largura cheia, onde há espaço para a letra respirar; os
+   valores do quadro de bilheteria apertam, porque a coluna é
+   estreita e o pintor de letreiro fazia exatamente isso quando o
+   nome não cabia no trilho. */
+.billboard-title,
+.recs-title,
+.section-title,
+.ficha-nome,
+.assinatura-titulo { font-stretch: 100%; }
+
+.ficha-dado dd,
+.card-titulo,
+.blade span { font-stretch: 88%; }
+
+/* Apertada e mais fina, a letra do trilho precisa de corpo para
+   continuar legível de longe — que é o ponto de um quadro de letras. */
+.ficha-dado dd { font-size: 1.12rem; }
