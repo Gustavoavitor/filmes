@@ -293,10 +293,17 @@ function renderFicha(rec) {
         ${rec.ano     ? `<span class="meta-tag">${rec.ano}</span>` : ''}
         ${rec.diretor ? `<span class="meta-tag">${escapeHtml(rec.diretor)}</span>` : ''}
         ${rec.pais    ? `<span class="meta-tag">🌍 ${escapeHtml(rec.pais)}</span>` : ''}
+        ${rec.duracao ? `<span class="meta-tag">${rec.duracao} min</span>` : ''}
         ${listaDeTags(rec.generos)}
       </div>
 
       ${rec.sinopse ? `<p class="rec-ficha-sinopse">${escapeHtml(rec.sinopse)}</p>` : ''}
+
+      ${rec.elenco ? `
+        <div class="rec-elenco">
+          <span class="rec-elenco-rotulo">Elenco</span>
+          <span class="rec-elenco-nomes">${escapeHtml(rec.elenco)}</span>
+        </div>` : ''}
 
       <div class="rec-secao-titulo">Onde assistir</div>
       <div class="ingressos">${montarIngressos(rec)}</div>
