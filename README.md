@@ -177,6 +177,21 @@ a `service_role` key fica fora do ar. Não adicione a chave como variável de
 ambiente na Vercel: este é um site estático, sem servidor, e qualquer valor
 injetado no cliente seria igualmente público.
 
+## Analytics
+
+O site usa o Vercel Web Analytics, pela tag que a Vercel serve na rota
+`/_vercel/insights/script.js` — e não pelo pacote `@vercel/analytics`, que
+precisa de bundler e aqui não teria como ser importado.
+
+Ela está em `index.html` e `recomendacoes.html`. A `admin.html` fica de fora
+de propósito: é painel, não página de visitante.
+
+Só funciona com o **Web Analytics ligado no painel da Vercel** (Project →
+Analytics → Enable). Sem isso a rota não existe e o script não faz nada.
+
+Rodando local, essa rota dá **404 no console** — é esperado, ela só existe no
+deploy.
+
 ## Pendências conhecidas
 
 - **O painel de administração não funciona.** Ele escreve no banco usando a

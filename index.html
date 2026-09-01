@@ -218,5 +218,11 @@
     </div>
   </nav>
   <script src="js/barra.js"></script>
+
+  <!-- Vercel Web Analytics. Em site estático não se usa o pacote
+       @vercel/analytics (ele precisa de bundler): a própria Vercel
+       serve este script na rota /_vercel/. Local ele dá 404, porque
+       a rota só existe no deploy. -->
+  <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
