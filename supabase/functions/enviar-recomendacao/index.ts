@@ -167,10 +167,10 @@ Deno.serve(async (req) => {
     let enviados = 0;
     const falhas: string[] = [];
 
-    // Um a um, e não em cópia oculta: cada e-mail leva o nome e o link
-    // de saída do próprio inscrito.
-    for (const inscrito of destinatarios) {
-      const resp = await fetch('https://api.resend.com/emails', {
+    const espera = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+    async function mandar(inscrito: { email: string; nome?: string | null; token?: string | null }) {
+      return await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${RESEND_API_KEY}`,
@@ -183,9 +183,26 @@ Deno.serve(async (req) => {
           html: montarEmail(modelo, rec, fontes, inscrito),
         }),
       });
+    }
+
+    // Um a um, e não em cópia oculta: cada e-mail leva o nome e o link
+    // de saída do próprio inscrito. O intervalo existe porque a Resend
+    // aceita 2 pedidos por segundo — sem ele, a partir do terceiro
+    // inscrito a lista começa a levar 429.
+    for (const [i, inscrito] of destinatarios.entries()) {
+      if (i > 0) await espera(600);
+
+      let resp = await mandar(inscrito);
+
+      // Se ainda assim vier 429, espera e tenta uma vez mais antes de
+      // dar o e-mail como perdido.
+      if (resp.status === 429) {
+        await espera(2000);
+        resp = await mandar(inscrito);
+      }
 
       if (resp.ok) enviados++;
-      else falhas.push(`${inscrito.email}: ${await resp.text()}`);
+      else falhas.push(`${inscrito.email}: ${resp.status} ${await resp.text()}`);
     }
 
     return Response.json({ filme: rec.titulo, enviados, falhas });

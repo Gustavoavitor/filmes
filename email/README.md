@@ -29,41 +29,62 @@ dados de exemplo.
 
 ## Publicar
 
-1. Rode `supabase-schema.sql` de novo no SQL editor — ele é reexecutável, e
-   agora cria a tabela da newsletter.
+O projeto já tem `supabase/config.toml` (criado com `supabase init`) e a
+verificação de JWT de cada função declarada nele — a `sair` vai aberta, a
+`enviar-recomendacao` fechada. Não precisa passar `--no-verify-jwt` na mão.
 
-2. Crie uma conta num provedor de e-mail ([Resend](https://resend.com) é o que a
-   função chama) e verifique um domínio remetente.
+1. Rode `supabase-schema.sql` no SQL editor. Ele é reexecutável e cria a tabela
+   da newsletter.
 
-3. Guarde os segredos. **Nenhum deles entra em arquivo do repositório:**
-
-   ```bash
-   supabase secrets set RESEND_API_KEY=... REMETENTE="Cinemateca Pessoal <ola@seudominio.com>" URL_SITE=https://filmes-five-theta.vercel.app
-   ```
-
-4. Publique as duas funções. A de saída vai sem verificação de JWT, senão o
-   clique no rodapé do e-mail volta 401:
+2. Entre e ligue o projeto:
 
    ```bash
-   supabase functions deploy enviar-recomendacao
+   npx supabase login
    ```
 
    ```bash
-   supabase functions deploy sair --no-verify-jwt
+   npx supabase link --project-ref rnpgknzettixrizaevft
    ```
+
+3. Guarde os segredos num arquivo, **não na linha de comando** — o shell grava
+   histórico. Crie `supabase/.env.local` (já é ignorado pelo git):
+
+   ```
+   RESEND_API_KEY=re_sua_chave
+   REMETENTE=Cinemateca Pessoal <ola@seudominio.com>
+   URL_SITE=https://cinematecapessoal.vercel.app
+   ```
+
+   E envie:
+
+   ```bash
+   npx supabase secrets set --env-file supabase/.env.local
+   ```
+
+   `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` não entram aí: a Supabase
+   injeta as duas sozinha, e nomes começando com `SUPABASE_` são reservados.
+
+4. Publique. O `--use-api` monta o pacote no servidor e dispensa o Docker:
+
+   ```bash
+   npx supabase functions deploy enviar-recomendacao sair --use-api
+   ```
+
+   Nunca use `--prune` aqui: ele apaga do projeto qualquer função que não
+   exista nesta pasta.
 
 ## Disparar
 
 Primeiro para você:
 
 ```bash
-curl -X POST "https://SEU-PROJETO.supabase.co/functions/v1/enviar-recomendacao" -H "Authorization: Bearer SUA_SERVICE_ROLE" -H "Content-Type: application/json" -d '{"teste":"voce@exemplo.com"}'
+curl -X POST "https://rnpgknzettixrizaevft.supabase.co/functions/v1/enviar-recomendacao" -H "Authorization: Bearer SUA_SERVICE_ROLE" -H "Content-Type: application/json" -d '{"teste":"voce@exemplo.com"}'
 ```
 
 Conferido, para a lista inteira:
 
 ```bash
-curl -X POST "https://SEU-PROJETO.supabase.co/functions/v1/enviar-recomendacao" -H "Authorization: Bearer SUA_SERVICE_ROLE" -H "Content-Type: application/json" -d '{}'
+curl -X POST "https://rnpgknzettixrizaevft.supabase.co/functions/v1/enviar-recomendacao" -H "Authorization: Bearer SUA_SERVICE_ROLE" -H "Content-Type: application/json" -d '{}'
 ```
 
 Sem `recomendacaoId`, ela pega o destaque da semana mais recente. Com ele, manda
@@ -81,6 +102,27 @@ O disparo. A função existe e funciona, mas alguém precisa chamá-la — de
 propósito, para você conferir o e-mail antes de ele sair. Se quiser automatizar
 depois, dá para agendar com `pg_cron` no próprio Supabase, ou disparar por um
 gatilho de `INSERT` na tabela `recomendacoes`.
+
+## Conferir se a lista está mesmo protegida
+
+A tabela tem policy só de INSERT. Sem policy de SELECT, a RLS filtra tudo e o
+PostgREST devolve `200 []` — conjunto vazio, não erro. Isso significa que uma
+resposta vazia **não prova nada** enquanto a lista está vazia: parece igual à
+lista protegida e à lista sem ninguém.
+
+O jeito de ter certeza é olhar as policies direto, no SQL editor:
+
+```sql
+select relrowsecurity as rls_ligada from pg_class where relname = 'newsletter_inscritos';
+```
+
+```sql
+select policyname, cmd, roles from pg_policies where tablename = 'newsletter_inscritos';
+```
+
+Tem que aparecer `rls_ligada = true` e exatamente uma policy, `INSERT`. Se
+aparecer qualquer policy de `SELECT`, a lista de e-mails está legível para
+quem tiver a chave anônima — que está no JavaScript do site, à vista de todos.
 
 ## Cuidados com o modelo
 
