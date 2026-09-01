@@ -245,7 +245,7 @@ export class Viewer3D {
       align-items:center; justify-content:center;
       background: linear-gradient(135deg, #0D0A11, #17131C);
       color: #C89543;
-      font-family: 'Special Elite', monospace;
+      font-family: 'Geist Mono', ui-monospace, monospace;
       font-size: 0.65rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
@@ -305,7 +305,7 @@ export class Viewer3D {
         display:flex; flex-direction:column;
         align-items:center; justify-content:center;
         background: linear-gradient(135deg, #17131C, #241C2B);
-        color: #C89543; font-family: 'Special Elite', monospace;
+        color: #C89543; font-family: 'Geist Mono', ui-monospace, monospace;
         font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase;
         gap:12px; border:2px solid #9A7130;
       ">

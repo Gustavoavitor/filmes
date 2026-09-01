@@ -64,7 +64,7 @@ export function montarEmail({ modelo, rec, fontes = [], inscrito = {}, urlSite, 
     // O <br> vem daqui e não do modelo: sem observação, o modelo
     // deixaria uma linha vazia embaixo do nome da plataforma.
     INGRESSO_OBS: fonte.obs
-      ? '<br /><span style="font-family:\'Special Elite\',Courier,monospace;font-size:9px;'
+      ? '<br /><span style="font-family:\'Geist Mono\',Courier,monospace;font-size:9px;'
         + 'letter-spacing:1.6px;text-transform:uppercase;color:#F9CFC4;">'
         + escapar(fonte.obs) + '</span>'
       : '',

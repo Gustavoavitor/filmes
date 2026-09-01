@@ -24,16 +24,16 @@ function pagina(titulo: string, texto: string, status = 200) {
 <html lang="pt-BR"><head><meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${titulo} — Cinemateca Pessoal</title></head>
-<body style="margin:0;background:#E8E8E4;font-family:Archivo,Helvetica,Arial,sans-serif;color:#13121A;">
+<body style="margin:0;background:#E8E8E4;font-family:Geist,Helvetica,Arial,sans-serif;color:#13121A;">
   <div style="max-width:520px;margin:0 auto;padding:80px 24px;text-align:center;">
-    <p style="font-family:'Special Elite',Courier,monospace;font-size:11px;letter-spacing:2.6px;
+    <p style="font-family:'Geist Mono',Courier,monospace;font-size:11px;letter-spacing:2.6px;
               text-transform:uppercase;color:#4A4750;margin:0 0 10px;">Cinemateca Pessoal</p>
     <h1 style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-weight:400;font-size:34px;
                line-height:36px;text-transform:uppercase;margin:0 0 14px;">${titulo}</h1>
     <p style="font-size:15px;line-height:26px;color:#2A2833;margin:0 0 26px;">${texto}</p>
     <a href="${URL_SITE}/recomendacoes.html"
        style="display:inline-block;padding:12px 24px;background:#13121A;color:#F6F6F3;
-              border-radius:999px;text-decoration:none;font-family:'Special Elite',Courier,monospace;
+              border-radius:999px;text-decoration:none;font-family:'Geist Mono',Courier,monospace;
               font-size:11px;letter-spacing:2.2px;text-transform:uppercase;">
       Ver as recomendações
     </a>
