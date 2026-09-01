@@ -3400,7 +3400,7 @@ textarea {
 
 /* ── Barra de navegação, centro inferior ─────────────────────
    Na Cinemateca ela é uma pílula vermelha flutuando sobre o
-   conteúdo. As lâmpadas mantêm o ar de marquise. */
+   conteúdo. Ela some ao descer e volta ao subir (js/barra.js). */
 .barra-marquise {
   position: fixed;
   inset-block-end: var(--space-6);
@@ -3446,23 +3446,6 @@ textarea {
 .barra-item.ativo {
   background: var(--breu);
   color: var(--gold-light);
-}
-
-/* Fileira de lâmpadas acompanhando a curva da pílula */
-.barra-lampadas {
-  position: absolute;
-  inset-block-start: -9px;
-  inset-inline: 50%;
-  translate: -50% 0;
-  width: min(94%, 460px);
-  height: 8px;
-  background-image: radial-gradient(circle at center,
-    #FFE9BE 0 1.9px, var(--gold) 1.9px 3px, transparent 3.2px);
-  background-size: 17px 8px;
-  background-repeat: repeat-x;
-  background-position: center;
-  filter: drop-shadow(0 0 5px rgba(200, 149, 67, 0.6));
-  pointer-events: none;
 }
 
 /* O rodapé precisa de espaço para a barra não cobrir o texto */
@@ -3894,97 +3877,6 @@ body.com-ficha { overflow: hidden; }
 .ingresso--medio .ingresso-plataforma { font-size: 1.15rem; }
 .ingresso--longo .ingresso-plataforma { font-size: 0.92rem; letter-spacing: 0.01em; }
 
-/* ── 4. Informações no padrão da Cinemateca ──────────────────
-   Lá os dados vêm em linha corrida, separados por filetes vermelhos
-   finos: 09 SET │ QUA │ 20h30 │ SESSÃO. É catálogo de arquivo, não
-   ornamento art déco. O friso sai daqui. */
-.section-header::before { content: none; }
-
-.ficha-dados {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  background: var(--cinza-claro);
-  border: 1px solid var(--cinza-escuro);
-  border-radius: var(--raio-sm);
-  padding: var(--space-4) var(--space-2);
-  margin-block-end: var(--space-5);
-}
-
-.ficha-dado {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-inline: var(--space-4);
-  border-inline-end: 2px solid var(--filete);
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.ficha-dado:last-child { border-inline-end: none; }
-
-.ficha-dado dt {
-  font-family: var(--font-marquee);
-  font-size: 0.5rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: #6E6A76;
-  margin: 0;
-}
-
-.ficha-dado dd {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.9rem;
-  line-height: 1.3;
-  color: #221E28;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-}
-
-/* O elenco é longo demais para uma célula de linha: ocupa a faixa toda */
-.ficha-dado:has(dt:only-of-type) { }
-.ficha-dados .ficha-dado--largo {
-  flex-basis: 100%;
-  border-inline-end: none;
-  border-block-start: 1px solid var(--cinza-escuro);
-  margin-block-start: var(--space-3);
-  padding-block-start: var(--space-3);
-}
-
-/* O painel da esquerda acompanha: cinza pastel em vez de translúcido
-   escuro, para as informações lerem como ficha de acervo. */
-.ficha-info {
-  background: var(--cinza);
-  border-color: var(--cinza-escuro);
-  color: #221E28;
-}
-
-.ficha-info .ficha-nome { color: #17131C; }
-.ficha-info .ficha-original { color: #6E2A19; }
-.ficha-info .ficha-sinopse { color: #3A3542; }
-
-.ficha-info .meta-tag {
-  border-color: var(--cinza-escuro);
-  color: #4A4550;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-/* A ficha técnica da recomendação segue o mesmo padrão */
-.film-meta-grid {
-  background: var(--cinza-claro);
-  border-color: var(--cinza-escuro);
-  background-image: none;
-}
-
-.film-meta-grid .meta-item {
-  border-inline-end: 2px solid var(--filete);
-  padding-inline-end: var(--space-4);
-}
-
-.film-meta-grid .meta-item:last-child { border-inline-end: none; }
-.film-meta-grid .meta-item-label { color: #6E6A76; }
-.film-meta-grid .meta-item-value { color: #221E28; text-transform: uppercase; }
 
 /* ── 5. Destaque como billboard de cinema de rua ─────────────
    O card vermelho chapado era genérico. O painel do Marabá tinha um
@@ -4060,16 +3952,424 @@ body.com-ficha { overflow: hidden; }
 .rec-featured-info .meta-tag { border-color: rgba(200, 149, 67, 0.5); color: #E4D9C6; }
 
 @media (max-width: 900px) {
-  .ficha-dado {
-    flex-basis: 45%;
-    border-inline-end: none;
-    border-inline-start: 2px solid var(--filete);
-    margin-block-end: var(--space-3);
-  }
-  .film-meta-grid .meta-item { border-inline-end: none; border-inline-start: 2px solid var(--filete); padding-inline-start: var(--space-3); }
   .rec-featured-info { padding-block: var(--space-8); }
 }
 
 /* .rec-featured-info é um flex em coluna, e nele align-items: stretch
    estica a tabuleta até a borda mesmo sendo inline-block. */
 .rec-featured-label { align-self: flex-start; }
+
+/* ============================================================
+   29. FOLHA DE ACERVO — o creme sai, entra papel cinza
+   ============================================================
+   Referências: blackfilmarchive.com, clockworkwb.com, joinjuggle.com.
+   A pintura de cinema de rua (neon, marquise, billboard, ingressos)
+   continua toda por cima. O que muda é o papel em que ela está
+   pregada: era creme art déco, vira folha de arquivo cinza com a
+   régua impressa por baixo e filetes duros no lugar dos ornamentos.
+   ============================================================ */
+
+:root {
+  /* O papel */
+  --papel:       #E8E8E4;   /* o chão */
+  --papel-alto:  #F6F6F3;   /* superfície que sobe: cards, campos */
+  --papel-baixo: #DBDBD6;   /* superfície que afunda: barras, listras */
+  --tinta:       #13121A;   /* preto de impressão */
+  --tinta-media: #4A4750;
+  --risco:       #BEBEB7;   /* filete impresso */
+  --regua:       rgba(19, 18, 26, 0.05);
+
+  /* O creme herdado passa a apontar para o papel. São quase três mil
+     linhas que obedecem sem precisar ser tocadas uma a uma. */
+  --cream:       #E8E8E4;
+  --cream-light: #F6F6F3;
+  --cream-dark:  #DBDBD6;
+  --parchment:   #C9C9C2;
+}
+
+/* ── 1. A régua impressa ─────────────────────────────────────
+   Uma grade de registro discreta, como a folha de contato de um
+   arquivo. Some sob o conteúdo e só aparece nas margens. */
+body {
+  background-color: var(--papel);
+  background-image:
+    linear-gradient(90deg,  var(--regua) 0 1px, transparent 1px),
+    linear-gradient(180deg, var(--regua) 0 1px, transparent 1px);
+  background-size: 96px 96px;
+  background-position: center top;
+  color: var(--tinta);
+}
+
+/* Sobre cinza o grão precisa de menos peso, senão vira sujeira */
+body::before { opacity: 0.3; }
+
+/* ── 2. Cabeçalho de seção: régua e etiqueta, sem ornamento ──
+   O friso art déco, os travessões em volta do título e o divisor
+   em degradê saem. Fica o que um acervo usaria: um filete grosso
+   por cima e a etiqueta preta encaixada nele. */
+.section-header {
+  text-align: start;
+  border-block-start: 3px solid var(--tinta);
+  padding-block-start: var(--space-4);
+  margin-block-end: var(--space-8);
+}
+
+/* Na página de recomendações o cabeçalho não tem contêiner com
+   margem, então ele mesmo se alinha à grade que vem abaixo. */
+main > .section-header {
+  width: min(100% - var(--space-16), 1136px);
+  margin-inline: auto;
+}
+
+.section-label {
+  display: inline-block;
+  background: var(--tinta);
+  color: var(--papel-alto);
+  font-family: var(--font-marquee);
+  font-size: 0.56rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  padding: 4px 12px 3px;
+  margin-block-end: var(--space-3);
+  border-radius: var(--raio-xs);
+}
+
+.section-title {
+  color: var(--tinta);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+}
+
+.section-title::before,
+.section-title::after { content: none; }
+
+.section-divider { display: none; }
+
+/* ── 3. Superfícies claras ───────────────────────────────────
+   Painel branco, filete preto, canto contido. */
+.filter-bar {
+  background: var(--papel-alto);
+  border: 2px solid var(--tinta);
+  box-shadow: 3px 4px 0 rgba(19, 18, 26, 0.14);
+}
+
+.filter-label { color: var(--tinta-media); }
+
+.filter-btn,
+.filter-select,
+.filter-search {
+  background: var(--papel-alto);
+  border-color: var(--risco);
+  color: var(--tinta);
+}
+
+.filter-btn.active {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: var(--papel-alto);
+}
+
+/* ── 4. Rodapé ───────────────────────────────────────────────*/
+.footer-divider {
+  width: min(100% - var(--space-16), 1136px);
+  height: 1px;
+  background: rgba(200, 149, 67, 0.4);
+  margin-inline: auto;
+}
+
+/* ── 5. O estuque salmão era o último resto de art déco em
+   área grande. Os painéis de formulário viram papel. ─────── */
+.rating-panel,
+.comment-form {
+  background: var(--papel-alto);
+  border: 2px solid var(--tinta);
+  border-bottom: 2px solid var(--tinta);
+  color: var(--tinta);
+}
+
+.rating-panel .rating-panel-header,
+.rating-panel .rating-mini-label,
+.comment-form .form-label {
+  color: var(--tinta-media);
+}
+
+/* ============================================================
+   30. A FICHA COMO PAINEL PINTADO
+   ============================================================
+   A tentativa anterior espalhou os campos numa linha corrida com
+   filetes vermelhos, e em tela larga eles ficavam de larguras
+   diferentes — a ficha lia como se tivesse quebrado. Volta o
+   painel: quadro escuro emoldurado em ocre, título pintado, e os
+   dados encaixados num quadro de letras de bilheteria, que é
+   rígido por natureza e por isso não desalinha.
+   ============================================================ */
+
+/* O friso art déco atrás dos cabeçalhos continua fora */
+.section-header::before { content: none; }
+
+/* ── O quadro ────────────────────────────────────────────────*/
+.ficha-info {
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 8%, rgba(255, 255, 255, 0.07), transparent 60%),
+    linear-gradient(168deg, #241C2B 0%, var(--breu) 58%, #0D0A11 100%);
+  border: 2px solid var(--gold-dark);
+  box-shadow:
+    0 0 0 5px rgba(23, 19, 28, 0.92),
+    0 0 0 7px var(--gold-dark),
+    0 20px 50px rgba(0, 0, 0, 0.5);
+  border-radius: var(--raio-md);
+  color: #E4D9C6;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+}
+
+/* O título vem pintado, como no painel do Tubarão */
+.ficha-info .ficha-nome {
+  color: var(--salmao);
+  text-shadow:
+    -2px -2px 0 #FFF6E8,  2px -2px 0 #FFF6E8,
+    -2px  2px 0 #FFF6E8,  2px  2px 0 #FFF6E8,
+     0   -2px 0 #FFF6E8,  0    2px 0 #FFF6E8,
+    -2px  0   0 #FFF6E8,  2px  0   0 #FFF6E8,
+     4px  5px 0 rgba(0, 0, 0, 0.55);
+  line-height: 1;
+}
+
+.ficha-info .ficha-original {
+  color: var(--neon-gelo);
+  margin-block: var(--space-3) var(--space-6);
+}
+
+.ficha-info .ficha-sinopse { color: #CFC4B2; }
+
+.ficha-info .meta-tag {
+  border-color: rgba(200, 149, 67, 0.5);
+  color: #E4D9C6;
+  background: rgba(200, 149, 67, 0.07);
+}
+
+/* ── O quadro de letras ──────────────────────────────────────
+   Trilhos horizontais, etiqueta miúda em cima e o valor em caixa
+   alta encaixado embaixo. A grade é de colunas iguais: um campo
+   nunca fica mais largo que o vizinho. */
+.ficha-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 0;
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 32px),
+    #0B0910;
+  border: 2px solid var(--gold-dark);
+  border-radius: var(--raio-xs);
+  overflow: hidden;
+  padding: 0;
+  margin: 0 0 var(--space-6);
+}
+
+/* As divisórias saem por box-shadow para não entrarem no cálculo da
+   grade: assim uma última linha incompleta não deixa filete solto —
+   o que sobra é aparado pelo overflow do quadro. */
+.ficha-dado {
+  display: block;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  min-width: 0;
+  box-shadow:
+    1px 0 0 rgba(200, 149, 67, 0.26),
+    0 1px 0 rgba(200, 149, 67, 0.26);
+}
+
+.ficha-dado dt {
+  font-family: var(--font-marquee);
+  font-size: 0.5rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 5px;
+}
+
+.ficha-dado dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #F2E9D8;
+  overflow-wrap: break-word;
+}
+
+/* --largo é só encaixe: estica o campo pelos dois trilhos. --lista é
+   o elenco, que é uma enumeração e não um valor — volta para a fonte
+   de texto, senão vira um bloco em caixa alta ilegível. */
+.ficha-dados .ficha-dado--largo { grid-column: 1 / -1; }
+
+.ficha-dados .ficha-dado--lista dd {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #E4D9C6;
+}
+
+/* ── A coluna do cartaz acompanha a moldura ──────────────────*/
+.ficha-lado {
+  background: linear-gradient(168deg, #241C2B 0%, var(--breu) 100%);
+  border: 2px solid var(--gold-dark);
+  border-radius: var(--raio-md);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+@media (max-width: 620px) {
+  .ficha-dados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ficha-info { padding: var(--space-6) var(--space-4) var(--space-4); }
+}
+
+/* ============================================================
+   31. A BARRA SOME AO DESCER
+   ============================================================
+   Ela é fixa e cobre o conteúdo enquanto se lê. Descendo, sai de
+   cena; subindo, volta. As lâmpadas em cima saíram: sobrou o
+   letreiro, com a sombra dura de placa pintada no lugar do brilho.
+   ============================================================ */
+
+.barra-marquise {
+  transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.22s ease;
+  will-change: transform;
+}
+
+.barra-marquise--oculta {
+  transform: translateY(calc(100% + var(--space-8)));
+  opacity: 0;
+}
+
+/* Chegar nela pelo teclado traz a barra de volta */
+.barra-marquise:focus-within {
+  transform: none;
+  opacity: 1;
+}
+
+.barra-itens {
+  box-shadow:
+    4px 5px 0 rgba(19, 18, 26, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* ============================================================
+   32. ASSINATURA — o quadro de inscrição
+   ============================================================
+   Fecha a página de recomendações. Quadro preto de acervo, filete
+   ocre e um único campo obrigatório: quanto menos porta, mais gente
+   entra. O ingresso não se repete aqui — ele é a assinatura da
+   ficha, e repetido perderia o efeito.
+   ============================================================ */
+
+.assinatura {
+  width: min(100% - var(--space-16), 1136px);
+  margin: 0 auto var(--space-20);
+}
+
+.assinatura-quadro {
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 40px),
+    linear-gradient(160deg, #241C2B 0%, var(--breu) 60%, #0D0A11 100%);
+  border: 2px solid var(--tinta);
+  border-radius: var(--raio-md);
+  box-shadow: 6px 7px 0 rgba(19, 18, 26, 0.16);
+  padding: var(--space-8);
+}
+
+.assinatura-etiqueta {
+  background: var(--gold);
+  color: var(--breu);
+}
+
+.assinatura-titulo {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #F2E9D8;
+  text-wrap: balance;
+  margin: 0 0 var(--space-3);
+}
+
+.assinatura-texto {
+  color: #CFC4B2;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  max-width: 62ch;
+  text-wrap: pretty;
+  margin: 0 0 var(--space-6);
+}
+
+/* Nome e e-mail lado a lado, botão fechando a linha */
+.assinatura-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: var(--space-4);
+}
+
+.assinatura-form .form-group { margin: 0; min-width: 0; }
+.assinatura-form .form-label { color: var(--gold); }
+
+.assinatura-form .form-input {
+  background: rgba(12, 10, 16, 0.6);
+  border: 1px solid rgba(200, 149, 67, 0.35);
+  color: #E4D9C6;
+  width: 100%;
+}
+
+.assinatura-form .form-input::placeholder { color: #7C7488; }
+
+.assinatura-form .form-input:focus-visible {
+  border-color: var(--gold);
+  outline: 2px solid rgba(200, 149, 67, 0.5);
+  outline-offset: 2px;
+}
+
+.assinatura-botao { white-space: nowrap; }
+
+.assinatura-miudo {
+  font-family: var(--font-marquee);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: var(--space-5) 0 0;
+}
+
+@media (max-width: 720px) {
+  .assinatura { width: min(100% - var(--space-8), 1136px); }
+  .assinatura-quadro { padding: var(--space-6) var(--space-5); }
+  .assinatura-form { grid-template-columns: 1fr; }
+  .assinatura-botao { width: 100%; justify-content: center; }
+}
+
+/* ============================================================
+   33. ACERTOS DE MONTAGEM
+   ============================================================ */
+
+/* A etiqueta virou inline-block para abraçar o próprio texto, e com
+   isso caiu na mesma linha do título, que também é inline-block.
+   A coluna resolve sem tirar o abraço. */
+.section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.section-label { align-self: flex-start; }
+
+/* Duas colunas fixas no quadro de letras: com auto-fit a contagem
+   mudava conforme a largura, e aí não dava para saber qual campo
+   precisava esticar para fechar a última linha (ver js/ficha.js). */
+.ficha-dados { grid-template-columns: repeat(2, minmax(0, 1fr)); }

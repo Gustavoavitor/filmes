@@ -8,3 +8,6 @@ Thumbs.db
 
 # Dependências (caso o projeto ganhe um build no futuro)
 node_modules/
+
+# Preview do e-mail — gerado por email/preview.mjs
+email/preview.html

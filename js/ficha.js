@@ -119,13 +119,20 @@ function renderFicha(f) {
     ['Elenco', f.elenco],
   ].filter(([, v]) => v);
 
+  // O quadro de letras tem duas colunas. O elenco sempre ocupa o trilho
+  // inteiro; se sobrar um campo ímpar antes dele, esse campo estica
+  // também — senão fica um encaixe vazio no meio do quadro.
+  const estreitos = dados.filter(([k]) => k !== 'Elenco');
+  const ultimoImpar = estreitos.length % 2 ? estreitos[estreitos.length - 1][0] : null;
+  const largo = (k) => k === 'Elenco' || k === ultimoImpar;
+
   document.getElementById('ficha-info').innerHTML = `
     <h2 class="ficha-nome">${escapeHtml(f.titulo)}</h2>
     ${f.titulo_original && f.titulo_original !== f.titulo
       ? `<p class="ficha-original">${escapeHtml(f.titulo_original)}</p>` : ''}
     <dl class="ficha-dados">
       ${dados.map(([k, v]) => `
-        <div class="ficha-dado${k === 'Elenco' ? ' ficha-dado--largo' : ''}">
+        <div class="ficha-dado${largo(k) ? ' ficha-dado--largo' : ''}${k === 'Elenco' ? ' ficha-dado--lista' : ''}">
           <dt>${k}</dt>
           <dd>${escapeHtml(String(v))}</dd>
         </div>`).join('')}
@@ -327,15 +334,25 @@ function montarColapso() {
   fichaScroll?.kill();
   fichaScroll = null;
 
-  const menosMovimento = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (menosMovimento || !window.gsap || !window.ScrollTrigger) return;
-
-  gsap.registerPlugin(ScrollTrigger);
-
   const rolagem = document.getElementById('ficha-rolagem');
   const palco   = document.getElementById('ficha-palco');
   const scan    = document.getElementById('ficha-scan');
   const colunas = [document.getElementById('ficha-info'), document.getElementById('ficha-lado')];
+  const alvos   = [...colunas, scan].filter(Boolean);
+
+  // Abaixo de 1080px o palco deixa de ser fixo: as três partes empilham
+  // e rolam junto com a página. Animar a opacidade ali abria buracos —
+  // a coluna do cartaz sumia mas continuava ocupando o lugar dela, e
+  // sobrava um vão vazio no meio da ficha.
+  const empilhado      = window.matchMedia?.('(max-width: 1080px)').matches;
+  const menosMovimento = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  if (empilhado || menosMovimento || !window.gsap || !window.ScrollTrigger) {
+    window.gsap?.set(alvos, { clearProps: 'all' });
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
 
   const linha = gsap.timeline({
     scrollTrigger: {
@@ -373,6 +390,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('trailer-modal');
     if (modal?.style.display === 'flex') fecharTrailer();
     else fecharFicha();
+  });
+
+  // Girar o telefone ou redimensionar cruza o limite de 1080px, e o
+  // colapso precisa ser montado ou desfeito de acordo.
+  let remontar;
+  window.addEventListener('resize', () => {
+    if (!fichaAberta) return;
+    clearTimeout(remontar);
+    remontar = setTimeout(montarColapso, 180);
   });
 
   // Voltar do navegador fecha a ficha; avançar reabre.

@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta name="color-scheme" content="light" />
+  <meta name="supported-color-schemes" content="light" />
+  <title>{{TITULO}} — Cinemateca Pessoal</title>
+
+  <!--[if mso]>
+  <style>
+    /* O Outlook não baixa webfont nenhuma e ignora line-height em px
+       dentro de <h1>. Aqui ele cai numa condensada e recebe a medida. */
+    body, table, td, a { font-family: Arial, Helvetica, sans-serif !important; }
+    .display { font-family: 'Arial Narrow', Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
+
+  <style>
+    /* Clientes que baixam webfont (Apple Mail, iOS, Thunderbird) ganham
+       as fontes do site. O Gmail descarta este bloco inteiro — por isso
+       tudo que importa está embutido tag por tag, e isto é só polimento. */
+    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700&family=Special+Elite&display=swap');
+
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+    img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    table { border-collapse: collapse !important; }
+
+    @media only screen and (max-width: 620px) {
+      .quadro  { width: 100% !important; }
+      .respiro { padding-left: 20px !important; padding-right: 20px !important; }
+      .display-grande { font-size: 30px !important; line-height: 31px !important; }
+      .empilha { display: block !important; width: 100% !important; padding: 0 0 18px 0 !important; }
+      .cartaz  { width: 100% !important; max-width: 100% !important; height: auto !important; }
+    }
+  </style>
+</head>
+
+<body style="margin:0;padding:0;background-color:#E8E8E4;">
+
+  <!-- A linha que aparece ao lado do assunto na caixa de entrada.
+       Some no corpo do e-mail. -->
+  <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">
+    {{TITULO}} ({{ANO}}), de {{DIRETOR}} — a recomendação desta semana, e onde assistir.
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#E8E8E4" style="background-color:#E8E8E4;">
+    <tr>
+      <td align="center" style="padding:24px 12px 40px;">
+
+        <table role="presentation" class="quadro" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;">
+
+          <!-- ═══════════════ MARQUISE ═══════════════ -->
+          <tr>
+            <td bgcolor="#13121A" align="center" style="background-color:#13121A;padding:22px 24px 14px;border-radius:8px 8px 0 0;">
+              <a href="{{URL_SITE}}" style="text-decoration:none;">
+                <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:22px;letter-spacing:1px;text-transform:uppercase;color:#FFF3E2;">Cinemateca</span>
+                <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:22px;letter-spacing:1px;text-transform:uppercase;color:#6BC5E8;">Pessoal</span>
+              </a>
+            </td>
+          </tr>
+
+          <!-- A fita de lâmpadas, montada com tipo: gradiente e
+               background-image somem no Gmail, um ponto não some. -->
+          <tr>
+            <td bgcolor="#13121A" align="center" style="background-color:#13121A;padding:0 12px 10px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:12px;letter-spacing:9px;color:#C89543;">
+              ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
+            </td>
+          </tr>
+          <tr>
+            <td bgcolor="#C89543" style="background-color:#C89543;font-size:0;line-height:0;height:3px;">&nbsp;</td>
+          </tr>
+
+          <!-- ═══════════════ ETIQUETA ═══════════════ -->
+          <tr>
+            <td bgcolor="#F6F6F3" class="respiro" style="background-color:#F6F6F3;padding:26px 36px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td bgcolor="#13121A" style="background-color:#13121A;padding:5px 12px 4px;border-radius:4px;font-family:'Special Elite',Courier,monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:#F6F6F3;">
+                    Nova recomendação · {{SEMANA}}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ═══════════════ CARTAZ E FICHA ═══════════════ -->
+          <tr>
+            <td bgcolor="#F6F6F3" class="respiro" style="background-color:#F6F6F3;padding:20px 36px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td class="empilha" width="170" valign="top" style="width:170px;padding:0 20px 0 0;">
+                    <img class="cartaz" src="{{CAPA_URL}}" width="170" alt="Cartaz de {{TITULO}}"
+                         style="display:block;width:170px;max-width:170px;height:auto;border:2px solid #13121A;border-radius:4px;" />
+                  </td>
+
+                  <td class="empilha" valign="top" style="padding:0;">
+                    <h1 class="display display-grande" style="margin:0 0 5px;font-family:'Anton','Arial Narrow',Impact,sans-serif;font-weight:400;font-size:33px;line-height:34px;letter-spacing:0.5px;text-transform:uppercase;color:#13121A;">
+                      {{TITULO}}
+                    </h1>
+
+                    <p style="margin:0 0 14px;font-family:'Archivo',Helvetica,Arial,sans-serif;font-size:13px;line-height:18px;font-style:italic;color:#4A4750;">
+                      {{TITULO_ORIGINAL}}
+                    </p>
+
+                    <!-- O quadro de letras da bilheteria, igual ao da ficha -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#0B0910" style="background-color:#0B0910;border:2px solid #9A7130;border-radius:4px;">
+                      <tr>
+                        <td width="50%" style="width:50%;padding:9px 12px 11px;border-right:1px solid #3A3020;border-bottom:1px solid #3A3020;">
+                          <span style="font-family:'Special Elite',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">Diretor</span><br />
+                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{DIRETOR}}</span>
+                        </td>
+                        <td width="50%" style="width:50%;padding:9px 12px 11px;border-bottom:1px solid #3A3020;">
+                          <span style="font-family:'Special Elite',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">Ano</span><br />
+                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{ANO}}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:9px 12px 11px;border-right:1px solid #3A3020;">
+                          <span style="font-family:'Special Elite',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">País</span><br />
+                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{PAIS}}</span>
+                        </td>
+                        <td style="padding:9px 12px 11px;">
+                          <span style="font-family:'Special Elite',Courier,monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C89543;">Duração</span><br />
+                          <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;color:#F2E9D8;">{{DURACAO}}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ═══════════════ SINOPSE ═══════════════ -->
+          <tr>
+            <td bgcolor="#F6F6F3" class="respiro" style="background-color:#F6F6F3;padding:24px 36px 0;">
+              <p style="margin:0;font-family:'Archivo',Helvetica,Arial,sans-serif;font-size:15px;line-height:26px;color:#2A2833;">
+                {{SINOPSE}}
+              </p>
+            </td>
+          </tr>
+
+          <!-- ═══════════════ ONDE ASSISTIR ═══════════════ -->
+          <tr>
+            <td bgcolor="#F6F6F3" class="respiro" style="background-color:#F6F6F3;padding:28px 36px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="border-top:3px solid #13121A;padding-top:10px;font-family:'Special Elite',Courier,monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:#4A4750;">
+                    Onde assistir
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td bgcolor="#F6F6F3" class="respiro" style="background-color:#F6F6F3;padding:14px 36px 0;">
+              <!-- INGRESSO:INICIO — o gerador repete este bloco por link.
+                   Os entalhes do ingresso do site são máscara CSS, que
+                   nenhum cliente de e-mail aplica: aqui o papel é um
+                   retângulo, com o canhoto separado pelo picote. -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px;">
+                <tr>
+                  <td>
+                    <a href="{{INGRESSO_URL}}" style="text-decoration:none;color:#FFF1E8;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#E2452F" style="background-color:#E2452F;border:1px solid #7E2415;border-radius:6px;">
+                        <tr>
+                          <td valign="middle" style="padding:12px 16px 13px;">
+                            <span style="font-family:'Special Elite',Courier,monospace;font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:#F9CFC4;">Sessão · admite um</span><br />
+                            <span class="display" style="font-family:'Anton','Arial Narrow',Impact,sans-serif;font-size:21px;line-height:25px;letter-spacing:0.5px;text-transform:uppercase;color:#FFF6EE;">{{INGRESSO_PLATAFORMA}}</span>
+                            {{INGRESSO_OBS}}
+                          </td>
+                          <td valign="middle" width="104" align="center" style="width:104px;padding:12px 10px 13px;border-left:2px dashed #F09B8A;">
+                            <span style="font-family:'Special Elite',Courier,monospace;font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:#FFE9BE;">Assistir</span><br />
+                            <span style="font-family:'Special Elite',Courier,monospace;font-size:9px;letter-spacing:1.4px;color:#F9CFC4;">Nº {{INGRESSO_NUM}}</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <!-- INGRESSO:FIM -->
+            </td>
+          </tr>
+
+          <!-- ═══════════════ VOLTAR AO SITE ═══════════════ -->
+          <tr>
+            <td bgcolor="#F6F6F3" class="respiro" style="background-color:#F6F6F3;padding:22px 36px 34px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#13121A" style="background-color:#13121A;border-radius:6px;">
+                <tr>
+                  <td align="center" style="padding:20px 24px 22px;">
+                    <p style="margin:0 0 14px;font-family:'Archivo',Helvetica,Arial,sans-serif;font-size:13px;line-height:22px;color:#CFC4B2;">
+                      Depois que assistir, volte e conte o que achou. Sua nota fica na
+                      ficha do filme, junto com a de quem já viu.
+                    </p>
+                    <a href="{{URL_FICHA}}" style="display:inline-block;padding:11px 22px 12px;background-color:#C89543;border-radius:999px;font-family:'Special Elite',Courier,monospace;font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:#13121A;text-decoration:none;">
+                      Deixar minha nota
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ═══════════════ RODAPÉ ═══════════════ -->
+          <tr>
+            <td bgcolor="#13121A" align="center" style="background-color:#13121A;padding:22px 30px 24px;border-radius:0 0 8px 8px;border-top:3px solid #9A7130;">
+              <p style="margin:0 0 8px;font-family:'Special Elite',Courier,monospace;font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:#857B8F;">
+                Ingresso reservado para {{NOME}}
+              </p>
+              <p style="margin:0;font-family:'Archivo',Helvetica,Arial,sans-serif;font-size:11px;line-height:19px;color:#7A7684;">
+                Um e-mail por recomendação, nada além disso.
+                <a href="{{URL_DESCADASTRO}}" style="color:#C89543;text-decoration:underline;">Sair da lista</a>.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

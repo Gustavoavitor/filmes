@@ -50,6 +50,7 @@ async function initRecsPage() {
     renderHero(semanaAtual);
     renderFeatured(destaque);
     renderSemanas(semanas, semanaAtual);
+    abrirRecDaUrl();
   } catch (err) {
     console.error(err);
     showToast('Erro ao carregar recomendações', 'error');
@@ -223,6 +224,15 @@ function montarModal() {
     const alvo = e.target.closest?.('[data-abrir-rec]');
     if (alvo) { e.preventDefault(); abrirRec(alvo.dataset.abrirRec); }
   });
+}
+
+// O e-mail da newsletter aponta para ?rec=<id>. Quem clicou em "deixar
+// minha nota" quer a ficha, e não o cartaz — a carta já abre virada.
+function abrirRecDaUrl() {
+  const id = new URLSearchParams(location.search).get('rec');
+  if (!id || !acharRec(id)) return;
+  abrirRec(id);
+  virarCarta();
 }
 
 function acharRec(id) {
@@ -514,3 +524,47 @@ function formatarSemanaCurta(iso) {
   return new Date(iso + 'T12:00:00')
     .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
+
+// ── Assinatura da newsletter ──────────────────────────────────
+// A tabela é insert-only: ninguém lê a lista pelo navegador. Um
+// e-mail repetido volta como "já estava", não como erro.
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('assinatura-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('assinatura-email').value.trim();
+    const nome  = document.getElementById('assinatura-nome').value.trim();
+    const btn   = document.getElementById('assinatura-enviar');
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      showToast('Esse e-mail está incompleto. Confira o endereço.', 'error');
+      document.getElementById('assinatura-email').focus();
+      return;
+    }
+
+    if (configIncompleta()) {
+      showToast('A lista ainda não está ligada ao banco.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Assinando…';
+
+    try {
+      const { jaEstava } = await inscreverNewsletter({ email, nome });
+      showToast(jaEstava
+        ? 'Esse e-mail já está na lista.'
+        : 'Assinado. A próxima recomendação chega no seu e-mail.', 'success');
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      showToast('Não deu para assinar agora. Tente de novo em instantes.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Assinar';
+    }
+  });
+});

@@ -378,3 +378,42 @@ ON CONFLICT (titulo, semana) DO UPDATE SET
 -- SELECT titulo, ano, diretor, pais, duracao, destaque,
 --        jsonb_array_length(onde_assistir) AS links
 -- FROM recomendacoes ORDER BY destaque DESC, titulo;
+
+-- ============================================================
+-- NEWSLETTER — quem quer receber a próxima recomendação
+-- ============================================================
+CREATE TABLE IF NOT EXISTS newsletter_inscritos (
+  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email      TEXT NOT NULL,
+  nome       TEXT,
+  ativo      BOOLEAN DEFAULT TRUE,
+  -- O link de saída no rodapé do e-mail carrega este token, para
+  -- ninguém precisar de senha só para se descadastrar.
+  token      UUID DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Um e-mail, uma inscrição — independente de maiúsculas.
+CREATE UNIQUE INDEX IF NOT EXISTS newsletter_email_uniq
+  ON newsletter_inscritos (lower(email));
+
+ALTER TABLE newsletter_inscritos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "newsletter_insercao_publica" ON newsletter_inscritos;
+
+-- Só INSERT é público. Não existe policy de SELECT de propósito: a
+-- chave anônima está no navegador de todo mundo, e uma lista de
+-- e-mails legível seria uma lista de e-mails colhível. Quem envia é
+-- a Edge Function, com a service_role, no servidor.
+CREATE POLICY "newsletter_insercao_publica"
+  ON newsletter_inscritos
+  FOR INSERT
+  WITH CHECK (
+    email ~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'
+  );
+
+-- ============================================================
+-- Conferência (rode como service_role, no SQL editor)
+-- ============================================================
+-- SELECT count(*) FILTER (WHERE ativo) AS ativos, count(*) AS total
+-- FROM newsletter_inscritos;

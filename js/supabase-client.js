@@ -114,6 +114,22 @@ async function fetchRecomendacoesDaSemana() {
   return data || [];
 }
 
+// ── Newsletter ────────────────────────────────────────────────
+// A tabela só aceita INSERT: ninguém consegue ler a lista com a chave
+// anônima. Por isso não há .select() aqui — pedir a linha de volta
+// seria pedir uma leitura que a RLS nega, e o insert falharia inteiro.
+async function inscreverNewsletter({ email, nome }) {
+  const { error } = await getSupabase()
+    .from('newsletter_inscritos')
+    .insert([{ email: email.trim().toLowerCase(), nome: nome?.trim() || null }]);
+
+  // 23505 é violação de índice único: o e-mail já está na lista. Do
+  // ponto de vista de quem assinou, isso não é erro nenhum.
+  if (error && error.code === '23505') return { jaEstava: true };
+  if (error) throw error;
+  return { jaEstava: false };
+}
+
 // ── Admin: CRUD completo ──────────────────────────────────────
 async function adminListFilmes() {
   const { data, error } = await getSupabaseAdmin()

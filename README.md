@@ -103,9 +103,9 @@ se comporte como a produção.
 ## Estrutura
 
 ```
-index.html              Home
-filme.html              Ficha do filme
-recomendacoes.html      Recomendações semanais
+index.html              Coleção + a ficha do filme, que abre por cima dela
+filme.html              Só redireciona para index.html?film=<id> (links antigos)
+recomendacoes.html      Recomendações semanais + assinatura da newsletter
 admin.html              Painel de administração
 css/main.css            Todo o estilo do site
 js/
@@ -113,24 +113,30 @@ js/
   config.local.js       service_role key + senha do admin (NÃO versionado)
   config.local.example.js  Modelo do arquivo acima
   supabase-client.js    Acesso ao banco + helpers compartilhados
-  app.js                Home: billboard, grid, filtros, paginação
-  filme.js              Ficha do filme: abas, trailer, comentários
-  recomendacoes.js      Recomendações semanais
+  app.js                Coleção: billboard, grade, filtros, paginação
+  ficha.js              Ficha do filme: sobreposição, scan 3D, comentários
+  recomendacoes.js      Recomendações semanais + assinatura
   admin.js              Painel de administração
+  barra.js              Esconde a barra de navegação ao descer a página
   rating.js             Widget de estrelas (0,5 a 5,0)
   viewer3d.js           Visualizador 3D (módulo ES, importa o three.js)
   caixa3d.js            Embalagem 3D compartilhada (grade + fallback da ficha)
   capa3d.js             Capas 3D nos cards da coleção
   projecao.js           Transição de projeção 35mm ao abrir um filme
+email/                  Newsletter: modelo do e-mail, gerador e preview
+supabase/functions/     Edge Functions: enviar-recomendacao e sair
 assets/modelos3d/       Arquivos .glb das embalagens
 serve.json              Config do servidor local (ver acima)
 supabase-schema.sql     Schema do banco
 ```
 
 Toda página carrega `config.js`, `supabase-client.js` e o seu próprio script.
-Só a `filme.html` carrega o `viewer3d.js`, e como módulo ES — o three.js entra
+Só a `index.html` carrega o `viewer3d.js`, e como módulo ES — o three.js entra
 por um import map, porque `GLTFLoader`, `DRACOLoader` e `OrbitControls` saíram
 do bundle global na versão r148 e hoje só existem em `examples/jsm`.
+
+A newsletter tem instruções próprias em [email/README.md](email/README.md):
+como ver o e-mail antes de mandar, o que publicar no Supabase e como disparar.
 
 ## Modelos 3D
 

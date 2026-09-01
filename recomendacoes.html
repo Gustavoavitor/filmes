@@ -78,6 +78,46 @@
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════
+         ASSINATURA — a próxima recomendação por e-mail
+    ══════════════════════════════════════════════════ -->
+    <section class="assinatura" id="assinatura" aria-labelledby="assinatura-titulo">
+      <div class="assinatura-quadro">
+        <span class="section-label assinatura-etiqueta">Assinatura</span>
+
+        <h2 class="assinatura-titulo" id="assinatura-titulo">
+          Receba cada recomendação no seu e-mail
+        </h2>
+
+        <p class="assinatura-texto">
+          Quando um filme novo entra na programação, chega um e-mail com a ficha,
+          onde assistir e o link para comentar depois que você ver.
+        </p>
+
+        <form class="assinatura-form" id="assinatura-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="assinatura-nome">Seu nome</label>
+            <input type="text" id="assinatura-nome" class="form-input"
+                   autocomplete="name" placeholder="Como vai aparecer no ingresso" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="assinatura-email">Seu e-mail</label>
+            <input type="email" id="assinatura-email" class="form-input" required
+                   autocomplete="email" placeholder="voce@exemplo.com" />
+          </div>
+
+          <button type="submit" class="btn btn-primary assinatura-botao" id="assinatura-enviar">
+            Assinar
+          </button>
+        </form>
+
+        <p class="assinatura-miudo">
+          Um e-mail por recomendação. O link para sair da lista vai em todos eles.
+        </p>
+      </div>
+    </section>
+
   </main>
 
 
@@ -103,14 +143,14 @@
   <script src="js/recomendacoes.js"></script>
 
   <!-- Barra de navegação flutuante, no centro inferior — a referência é a
-       da Cinemateca Brasileira. As lâmpadas mantêm o ar de marquise. -->
+       da Cinemateca Brasileira. Ela some ao descer e volta ao subir. -->
   <nav class="barra-marquise" role="navigation" aria-label="Navegação principal">
-    <span class="barra-lampadas" aria-hidden="true"></span>
     <div class="barra-itens">
       <a href="index.html" class="barra-item" id="nav-colecao">Coleção</a>
       <a href="recomendacoes.html" class="barra-item ativo" id="nav-recomendacoes">Recomendações</a>
       <a href="admin.html" class="barra-item barra-item--admin" id="nav-admin">Admin</a>
     </div>
   </nav>
+  <script src="js/barra.js"></script>
 </body>
 </html>
