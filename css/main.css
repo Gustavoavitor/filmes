@@ -3,7 +3,7 @@
    Vintage Cinema Aesthetic — Off-White Pastel + Gold
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@300..800&family=Special+Elite&display=swap');
 
 /* ============================================================
    1. CSS CUSTOM PROPERTIES (Design Tokens)
@@ -39,8 +39,11 @@
   /* Typography */
   --font-display: 'Anton', 'Arial Narrow', Impact, sans-serif;
   --font-marquee: 'Special Elite', 'Courier New', monospace;
-  --font-body:    'Archivo', 'Helvetica Neue', Arial, sans-serif;
-  --font-accent:  'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  /* Geist é a fonte de leitura do joinjuggle: uma grotesca neutra e
+     moderna, que faz contraponto com o letreiro pintado em vez de
+     competir com ele. Variável, de 300 a 800. */
+  --font-body:    'Geist', 'Helvetica Neue', Arial, sans-serif;
+  --font-accent:  'Geist', 'Helvetica Neue', Arial, sans-serif;
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -3064,8 +3067,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Ajustes que a troca de fonte pediu ──────────────────────*/
 
-/* Archivo é mais compacta que a Libre Baskerville: o corpo ganha ar */
-body { letter-spacing: 0.005em; }
+/* A Geist já vem espaçada de fábrica; o ajuste que a Archivo pedia
+   agora só borraria o texto. */
+body { letter-spacing: 0; }
 
 /* Anton em corpo pequeno precisa de respiro entre linhas */
 .card-title { line-height: 1.15; letter-spacing: 0.03em; }
