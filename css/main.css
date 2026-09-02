@@ -4528,3 +4528,57 @@ main > .section-header {
 /* Apertada e mais fina, a letra do trilho precisa de corpo para
    continuar legível de longe — que é o ponto de um quadro de letras. */
 .ficha-dado dd { font-size: 1.12rem; }
+
+/* ============================================================
+   36. A BORDA DE CIMA NÃO CORTA MAIS A SECO
+   ============================================================
+   Rolando, o conteúdo era guilhotinado na linha de cima da tela.
+   No celular isso ficava feio na ficha: o quadro claro do scan 3D
+   some por cima e deixava uma sobra de uns 40px, com canto
+   arredondado, parecendo um pedaço solto de interface em vez de
+   conteúdo saindo de cena. Agora ele se dissolve.
+   ============================================================ */
+
+.ficha-rolagem {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 58px);
+  mask-image: linear-gradient(180deg, transparent 0, #000 58px);
+}
+
+/* O palco já começa com folga maior que a faixa da máscara, então
+   parado no topo não se perde nada — a dissolução só aparece quando
+   há mesmo conteúdo passando por baixo da borda. */
+
+/* ── Altura de viewport que acompanha a barra do navegador ───
+   No iOS a barra de endereço encolhe e cresce durante a rolagem.
+   Um elemento fixo usa a viewport grande, então o fim da ficha
+   ficava embaixo da barra quando ela reaparecia. dvh acompanha. */
+.ficha { height: 100dvh; }
+.ficha-palco { min-height: 100dvh; }
+
+@media (max-width: 1080px) {
+  .ficha-palco { min-height: auto; }
+  .ficha-scan { height: min(56dvh, 460px); }
+}
+
+/* O botão de fechar flutua sobre o que estiver rolando ali atrás.
+   Uma sombra suave o descola do fundo sem pedir uma barra inteira. */
+.ficha-fechar {
+  box-shadow: 0 6px 22px rgba(9, 7, 12, 0.55);
+}
+
+/* ── A mesma borda dura no cabeçalho fixo ────────────────────
+   O texto passava por baixo da fita de lâmpadas e era cortado no
+   meio da letra. A faixa desfoca o que entra embaixo, e funciona
+   tanto sobre o billboard escuro quanto sobre o papel cinza. */
+.site-header::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline: 0;
+  height: 20px;
+  pointer-events: none;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent);
+  mask-image: linear-gradient(180deg, #000, transparent);
+}

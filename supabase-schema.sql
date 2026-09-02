@@ -170,7 +170,8 @@ ON recomendacoes (titulo, semana);
 
 INSERT INTO filmes (
   titulo, titulo_original, ano, diretor, elenco, sinopse, generos,
-  formato, pais, duracao, classificacao, minha_nota, destaque, cor_spine
+  formato, pais, duracao, classificacao, minha_nota, destaque, cor_spine,
+  capa_url
 )
 VALUES (
   'Stalker',
@@ -186,7 +187,11 @@ VALUES (
   '12 anos',
   5.0,
   TRUE,
-  '#2c3e50'
+  -- Sépia quente tirado da arte da Criterion. O azul-acinzentado de antes
+  -- brigava com a capa; as outras lombadas seguem a mesma regra (azul no
+  -- Veludo Azul, vermelho no Videodrome).
+  '#7D5528',
+  'https://rnpgknzettixrizaevft.supabase.co/storage/v1/object/public/capas/stalker_poster.jpg'
 )
 ON CONFLICT (titulo, ano) DO UPDATE SET
   titulo_original = EXCLUDED.titulo_original,
@@ -200,7 +205,8 @@ ON CONFLICT (titulo, ano) DO UPDATE SET
   classificacao = EXCLUDED.classificacao,
   minha_nota = EXCLUDED.minha_nota,
   destaque = EXCLUDED.destaque,
-  cor_spine = EXCLUDED.cor_spine;
+  cor_spine = EXCLUDED.cor_spine,
+  capa_url = EXCLUDED.capa_url;
 
 INSERT INTO filmes (
   titulo, titulo_original, ano, diretor, elenco, sinopse, generos,

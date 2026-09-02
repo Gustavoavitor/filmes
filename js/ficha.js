@@ -14,6 +14,7 @@ let fichaAberta   = null;   // o filme no ar
 let fichaViewer   = null;   // instância do Viewer3D
 let fichaNota     = null;   // widget de estrelas do formulário
 let fichaScroll   = null;   // ScrollTrigger, para matar ao fechar
+let soltarScan    = null;   // desliga o esmaecimento do scan no empilhado
 
 // ── Abrir e fechar ────────────────────────────────────────────
 function abrirFicha(id, semHistorico = false) {
@@ -32,6 +33,12 @@ function abrirFicha(id, semHistorico = false) {
   const ficha = document.getElementById('ficha');
   ficha.hidden = false;
   document.body.classList.add('com-ficha');
+
+  // Abrir outro filme reaproveita o mesmo contêiner, e ele guardava a
+  // rolagem do anterior: a ficha nova aparecia no meio, com o scan já
+  // meio apagado. 'instant' porque o contêiner rola em smooth.
+  document.getElementById('ficha-rolagem')
+    ?.scrollTo({ top: 0, behavior: 'instant' });
 
   // O quadro precisa existir com altura antes do Viewer3D medir
   requestAnimationFrame(() => {
@@ -53,6 +60,15 @@ function fecharFicha(semHistorico = false) {
 
   fichaScroll?.kill();
   fichaScroll = null;
+  soltarScan?.();
+  soltarScan = null;
+
+  // O kill() do ScrollTrigger não desfaz o que a linha do tempo escreveu
+  // em style. Sem isto o palco reabria com as colunas meio transparentes
+  // e deslocadas, do jeito que ficaram quando fechou.
+  window.gsap?.set(
+    ['#ficha-info', '#ficha-lado', '#ficha-scan'].map(s => document.querySelector(s)).filter(Boolean),
+    { clearProps: 'all' });
   fichaViewer?.destroy?.();
   fichaViewer = null;
   fichaAberta = null;
@@ -347,8 +363,16 @@ function montarColapso() {
   const empilhado      = window.matchMedia?.('(max-width: 1080px)').matches;
   const menosMovimento = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
+  soltarScan?.();
+  soltarScan = null;
+
   if (empilhado || menosMovimento || !window.gsap || !window.ScrollTrigger) {
     window.gsap?.set(alvos, { clearProps: 'all' });
+    // Empilhado, o scan sai de cena rolando. Ele é um quadro claro sobre
+    // o desfoque escuro, e cortado a seco no alto da tela lê como um
+    // pedaço solto de interface — foi o que apareceu no celular. Agora
+    // ele se apaga enquanto sobe, e some antes de virar sobra.
+    if (empilhado && rolagem && scan) soltarScan = esmaecerScan(rolagem, scan);
     return;
   }
 
@@ -374,6 +398,34 @@ function montarColapso() {
 
   fichaScroll = linha.scrollTrigger;
   ScrollTrigger.refresh();
+}
+
+// Devolve a função que desliga o acompanhamento.
+function esmaecerScan(rolagem, scan) {
+  let agendado = false;
+
+  function medir() {
+    agendado = false;
+    const r = scan.getBoundingClientRect();
+    // Já está apagado bem antes de virar uma tira fina no alto: a conta
+    // é sobre o rodapé do quadro, não sobre o topo.
+    const faixa = r.height * 0.55 || 1;
+    scan.style.opacity = String(Math.max(0, Math.min(1, r.bottom / faixa)));
+  }
+
+  function aoRolar() {
+    if (agendado) return;
+    agendado = true;
+    requestAnimationFrame(medir);
+  }
+
+  rolagem.addEventListener('scroll', aoRolar, { passive: true });
+  medir();
+
+  return () => {
+    rolagem.removeEventListener('scroll', aoRolar);
+    scan.style.opacity = '';
+  };
 }
 
 // ── Ligações ──────────────────────────────────────────────────
