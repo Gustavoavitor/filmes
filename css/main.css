@@ -2253,6 +2253,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (prefers-reduced-motion: reduce) {
   .star-rating.escolhendo .estrela { animation: none; }
   .star-rating.tema-videodrome .estrelas-linha::after { animation: none; }
+  .star-rating.tema-stalker .estrela-colina { animation: none; }
 }
 
 
@@ -4566,19 +4567,108 @@ main > .section-header {
   box-shadow: 0 6px 22px rgba(9, 7, 12, 0.55);
 }
 
-/* ── A mesma borda dura no cabeçalho fixo ────────────────────
-   O texto passava por baixo da fita de lâmpadas e era cortado no
-   meio da letra. A faixa desfoca o que entra embaixo, e funciona
-   tanto sobre o billboard escuro quanto sobre o papel cinza. */
-.site-header::after {
-  content: '';
-  position: absolute;
-  inset-block-start: 100%;
-  inset-inline: 0;
-  height: 20px;
-  pointer-events: none;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  -webkit-mask-image: linear-gradient(180deg, #000, transparent);
-  mask-image: linear-gradient(180deg, #000, transparent);
+/* A faixa de desfoque que ficava sob o cabeçalho saiu na seção 37:
+   backdrop-filter dentro de um elemento sticky faz o Safari do iOS
+   perder o encaixe durante a rolagem. Era polimento marginal. */
+
+/* ============================================================
+   37. ÁREA SEGURA DO IOS
+   ============================================================
+   No iPhone, quando a barra de endereço do Safari encolhe, a página
+   passa a pintar por baixo da barra de status — mas o cabeçalho
+   sticky continuava resolvendo top: 0 contra a viewport antiga, e
+   parava uns 47px abaixo. O resultado era o conteúdo da grade
+   passando por cima do cabeçalho, na altura do relógio.
+
+   Com viewport-fit=cover (no <meta> de cada página) a viewport passa
+   a ser a tela inteira, top: 0 vira o topo de verdade, e env() diz
+   quanto o cabeçalho precisa crescer para tapar a faixa do relógio.
+   ============================================================ */
+
+.site-header {
+  padding-block-start: env(safe-area-inset-top, 0px);
+  /* A faixa nova precisa da mesma tinta do cabeçalho, senão ela
+     aparece transparente por cima do conteúdo. */
+  background: var(--breu);
 }
+
+/* Com a tela inteira valendo, as bordas laterais também contam nos
+   aparelhos com cantos arredondados. */
+.header-top,
+.collection-section,
+.site-footer {
+  padding-inline-start: max(var(--space-8), env(safe-area-inset-left, 0px));
+  padding-inline-end:   max(var(--space-8), env(safe-area-inset-right, 0px));
+}
+
+/* A barra flutuante subia até a borda de baixo, onde no iPhone fica a
+   faixa do gesto de início. */
+.barra-marquise {
+  inset-block-end: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+}
+
+.site-footer {
+  padding-block-end: calc(var(--space-16) + var(--space-8) + env(safe-area-inset-bottom, 0px));
+}
+
+/* O fechar da ficha desce abaixo do relógio */
+.ficha-fechar {
+  inset-block-start: calc(var(--space-5) + env(safe-area-inset-top, 0px));
+  inset-inline-end: calc(var(--space-5) + env(safe-area-inset-right, 0px));
+}
+
+.ficha-palco {
+  padding-block-start: calc(var(--space-16) + env(safe-area-inset-top, 0px));
+}
+
+@media (max-width: 1080px) {
+  .ficha-palco {
+    padding-block-start: calc(var(--space-16) + var(--space-6) + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ============================================================
+   38. TEMA DAS ESTRELAS: STALKER
+   ============================================================
+   O cartaz ilustrado é um céu ocre com colinas azuis atravessando,
+   e três figuras minúsculas cruzando as dunas. A estrela pega essa
+   paleta: miolo ocre com as faixas azuis passando por cima.
+   ============================================================ */
+
+.star-rating.tema-stalker {
+  --estrela-cor:   #E3A23E;   /* o céu do cartaz */
+  --estrela-vazia: rgba(190, 130, 55, 0.20);
+  --estrela-traco: #C2492A;   /* o vermelho do letreiro STALKER */
+}
+
+/* As colinas são caminhos desenhados, recortados na forma da estrela e
+   mascarados pelo mesmo corte do preenchimento — assim só aparecem sobre
+   a parte acesa, e a meia estrela continua com a divisão reta. */
+.star-rating.tema-stalker .estrela-colina { pointer-events: none; }
+
+/* Sol baixo batendo de lado, como no cartaz */
+.star-rating.tema-stalker .estrela-brilho {
+  filter: drop-shadow(0 0 3px rgba(227, 162, 62, 0.5));
+}
+
+/* Ao escolher a nota, a paisagem ondula em vez de derreter */
+.star-rating.tema-stalker.escolhendo .estrela {
+  animation-name: estrela-ondula;
+  animation-duration: 1.05s;
+  animation-timing-function: cubic-bezier(0.36, 0, 0.24, 1);
+}
+
+@keyframes estrela-ondula {
+  0%   { transform: translateY(0)     skewY(0deg); }
+  25%  { transform: translateY(-2.5px) skewY(3.5deg); }
+  55%  { transform: translateY(1.5px)  skewY(-2.5deg); }
+  80%  { transform: translateY(-0.8px) skewY(1deg); }
+  100% { transform: translateY(0)     skewY(0deg); }
+}
+
+/* A onda percorre a fileira, uma estrela puxando a seguinte —
+   é a mesma cadência das figuras cruzando as dunas do cartaz. */
+.star-rating.tema-stalker.escolhendo .estrela:nth-child(2) { animation-delay: 0.07s; }
+.star-rating.tema-stalker.escolhendo .estrela:nth-child(3) { animation-delay: 0.14s; }
+.star-rating.tema-stalker.escolhendo .estrela:nth-child(4) { animation-delay: 0.21s; }
+.star-rating.tema-stalker.escolhendo .estrela:nth-child(5) { animation-delay: 0.28s; }

@@ -171,7 +171,7 @@ ON recomendacoes (titulo, semana);
 INSERT INTO filmes (
   titulo, titulo_original, ano, diretor, elenco, sinopse, generos,
   formato, pais, duracao, classificacao, minha_nota, destaque, cor_spine,
-  capa_url
+  capa_url, tema_estrelas
 )
 VALUES (
   'Stalker',
@@ -191,7 +191,8 @@ VALUES (
   -- brigava com a capa; as outras lombadas seguem a mesma regra (azul no
   -- Veludo Azul, vermelho no Videodrome).
   '#7D5528',
-  'https://rnpgknzettixrizaevft.supabase.co/storage/v1/object/public/capas/stalker_poster.jpg'
+  'https://rnpgknzettixrizaevft.supabase.co/storage/v1/object/public/capas/stalker_poster.jpg',
+  'stalker'
 )
 ON CONFLICT (titulo, ano) DO UPDATE SET
   titulo_original = EXCLUDED.titulo_original,
@@ -206,7 +207,8 @@ ON CONFLICT (titulo, ano) DO UPDATE SET
   minha_nota = EXCLUDED.minha_nota,
   destaque = EXCLUDED.destaque,
   cor_spine = EXCLUDED.cor_spine,
-  capa_url = EXCLUDED.capa_url;
+  capa_url = EXCLUDED.capa_url,
+  tema_estrelas = EXCLUDED.tema_estrelas;
 
 INSERT INTO filmes (
   titulo, titulo_original, ano, diretor, elenco, sinopse, generos,

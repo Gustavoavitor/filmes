@@ -9,11 +9,24 @@
 // Cada filme pode ter um tema, que muda o material das estrelas:
 //   'veludo'     azul com textura de veludo
 //   'videodrome' chuvisco de TV fora de sintonia
+//   'stalker'    as colinas onduladas do cartaz ilustrado
 //   (padrão)     dourado da casa
 // ============================================================
 
 const CAMINHO_ESTRELA =
   'M12 2.4l2.95 5.98 6.6.96-4.775 4.655 1.127 6.573L12 17.47l-5.902 3.098 1.127-6.573L2.45 9.34l6.6-.96z';
+
+// As colinas do cartaz do Stalker: três horizontes empilhados, do azul
+// do fundo ao verde-amarelo da frente. O traçado tem período 12 e vai de
+// -12 a 36, então deslizar 12 para o lado emenda sem costura.
+const COLINAS_STALKER = [
+  { d: 'M-12 11.5 q 3 -4 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 V24 H-12 Z',
+    cor: '#7FA8C4', opacidade: 0.82, passo: 34 },
+  { d: 'M-12 16 q 3 -3.4 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 V24 H-12 Z',
+    cor: '#9CC0A6', opacidade: 0.8, passo: 26 },
+  { d: 'M-12 20 q 3 -2.6 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 V24 H-12 Z',
+    cor: '#C6CC80', opacidade: 0.78, passo: 19 },
+];
 
 let _seqEstrela = 0;
 
@@ -25,7 +38,7 @@ class StarRating {
    * @param {boolean}  options.readOnly - só exibição
    * @param {Function} options.onChange - callback ao escolher a nota
    * @param {number}   options.size     - lado de cada estrela em px
-   * @param {string}   options.tema     - 'veludo' | 'videodrome' | null
+   * @param {string}   options.tema     - 'veludo' | 'videodrome' | 'stalker' | null
    */
   constructor(container, options = {}) {
     this.container = container;
@@ -54,10 +67,12 @@ class StarRating {
 
   // ── SVG: defs do tema + as cinco estrelas ───────────────────
   _svg() {
-    // O chuvisco vai numa camada própria por cima, e não como filtro do
-    // preenchimento: filtro no preenchimento é destrutivo, e se ele falha
-    // a estrela some. Assim a pior hipótese é ficar sem o chuvisco.
+    // Chuvisco e colinas vão numa camada própria por cima, e não como
+    // filtro do preenchimento: filtro no preenchimento é destrutivo, e se
+    // ele falha a estrela some. Assim a pior hipótese é ficar sem o
+    // material — a estrela continua lá.
     const estatica = this.tema === 'videodrome';
+    const colinas  = this.tema === 'stalker';
 
     const estrelas = [1, 2, 3, 4, 5].map(i => `
       <svg class="estrela" viewBox="0 0 24 24" aria-hidden="true">
@@ -66,6 +81,13 @@ class StarRating {
               fill="url(#${this.uid}-g${i})" />
         ${estatica ? `<path class="estrela-estatica" d="${CAMINHO_ESTRELA}"
               fill="url(#${this.uid}-g${i})" />` : ''}
+        ${colinas ? `<g class="estrela-colina"
+              clip-path="url(#${this.uid}-recorte)" mask="url(#${this.uid}-m${i})">
+          ${COLINAS_STALKER.map(c => `<path d="${c.d}" fill="${c.cor}" opacity="${c.opacidade}">
+            <animateTransform attributeName="transform" type="translate"
+                              values="0 0;-12 0" dur="${c.passo}s" repeatCount="indefinite" />
+          </path>`).join('')}
+        </g>` : ''}
         <path class="estrela-contorno" d="${CAMINHO_ESTRELA}" />
       </svg>`).join('');
 
@@ -77,7 +99,15 @@ class StarRating {
             <linearGradient id="${this.uid}-g${i}" x1="0" y1="0" x2="1" y2="0">
               <stop class="parada-cheia"  offset="0%"   stop-color="var(--estrela-cor)" />
               <stop class="parada-vazia"  offset="0%"   stop-color="transparent" />
-            </linearGradient>`).join('')}
+            </linearGradient>
+            ${colinas ? `
+            <linearGradient id="${this.uid}-mg${i}" x1="0" y1="0" x2="1" y2="0">
+              <stop class="mascara-cheia" offset="0%" stop-color="#fff" />
+              <stop class="mascara-vazia" offset="0%" stop-color="#000" />
+            </linearGradient>
+            <mask id="${this.uid}-m${i}">
+              <rect x="0" y="0" width="24" height="24" fill="url(#${this.uid}-mg${i})" />
+            </mask>` : ''}`).join('')}
         </defs>
       </svg>
       <div class="estrelas-linha">${estrelas}</div>
@@ -97,6 +127,22 @@ class StarRating {
           </feDiffuseLighting>
           <feComposite in="luz" in2="SourceGraphic" operator="in" result="tecido" />
           <feBlend in="SourceGraphic" in2="tecido" mode="multiply" />
+        </filter>`;
+    }
+
+    if (this.tema === 'stalker') {
+      // O cartaz tem colinas empilhadas de borda limpa, e turbulência num
+      // quadro de 24 unidades não faz isso — vira mancha. As ondas são
+      // desenhadas mesmo, e o recorte da estrela as segura dentro da forma.
+      return `
+        <clipPath id="${this.uid}-recorte"><path d="${CAMINHO_ESTRELA}" /></clipPath>
+        <filter id="${this.uid}-vaga" x="-40%" y="-40%" width="180%" height="180%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="9" result="vaga" />
+          <feDisplacementMap in="SourceGraphic" in2="vaga" scale="0"
+                             xChannelSelector="R" yChannelSelector="G">
+            <animate class="anim-vaga" attributeName="scale" values="0;7;2;0"
+                     dur="1.1s" begin="indefinite" fill="freeze" />
+          </feDisplacementMap>
         </filter>`;
     }
 
@@ -197,6 +243,12 @@ class StarRating {
       } else if (this.tema === 'videodrome') {
         const estatica = svg.querySelector('.estrela-estatica');
         if (estatica) estatica.style.filter = parte > 0 ? `url(#${this.uid}-chuvisco)` : '';
+      } else if (this.tema === 'stalker') {
+        const mg = this.container.querySelector(`#${this.uid}-mg${idx + 1}`);
+        if (mg) {
+          mg.querySelector('.mascara-cheia').setAttribute('offset', pct);
+          mg.querySelector('.mascara-vazia').setAttribute('offset', pct);
+        }
       }
     });
 
@@ -218,8 +270,8 @@ class StarRating {
     this.container.classList.add('escolhendo');
     setTimeout(() => this.container.classList.remove('escolhendo'), 800);
 
-    // No tema Videodrome o derretimento é feito por displacement.
-    this.container.querySelectorAll('.anim-derrete').forEach(a => {
+    // Videodrome derrete, Stalker ondula: os dois por displacement.
+    this.container.querySelectorAll('.anim-derrete, .anim-vaga').forEach(a => {
       try { a.beginElement(); } catch { /* navegador sem SMIL */ }
     });
   }
