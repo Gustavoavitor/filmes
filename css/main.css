@@ -271,9 +271,13 @@ h1, h2, h3, h4, h5, h6 {
 .site-header {
   background: var(--mahogany-dark);
   border-bottom: 4px solid var(--gold);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  /* Não acompanha a rolagem. Era sticky, e no Safari do iOS o sticky
+     desencaixava quando a barra de endereço encolhia: o cabeçalho
+     parava abaixo da barra de status e a página aparecia por cima dele.
+     Tentei consertar pela área segura e o vazamento continuou. Quem
+     navega o site é a barra de baixo, que é fixa e se comporta — o
+     letreiro aqui em cima é abertura, não precisa seguir junto. */
+  position: static;
 }
 
 .header-top {
@@ -4574,21 +4578,19 @@ main > .section-header {
 /* ============================================================
    37. ÁREA SEGURA DO IOS
    ============================================================
-   No iPhone, quando a barra de endereço do Safari encolhe, a página
-   passa a pintar por baixo da barra de status — mas o cabeçalho
-   sticky continuava resolvendo top: 0 contra a viewport antiga, e
-   parava uns 47px abaixo. O resultado era o conteúdo da grade
-   passando por cima do cabeçalho, na altura do relógio.
+   Com viewport-fit=cover (no <meta> de cada página) a viewport passa a
+   ser a tela inteira, inclusive a faixa do relógio e a do gesto de
+   início. env() diz de quanto é cada uma, e é o que impede o conteúdo
+   de nascer embaixo delas.
 
-   Com viewport-fit=cover (no <meta> de cada página) a viewport passa
-   a ser a tela inteira, top: 0 vira o topo de verdade, e env() diz
-   quanto o cabeçalho precisa crescer para tapar a faixa do relógio.
+   O vazamento do cabeçalho não se resolveu por aqui: ele saiu da
+   rolagem de vez (position: static, lá em cima na seção 6). Este
+   respiro continua valendo porque no topo da página, com a tela
+   inteira valendo, o letreiro nasceria embaixo do relógio.
    ============================================================ */
 
 .site-header {
   padding-block-start: env(safe-area-inset-top, 0px);
-  /* A faixa nova precisa da mesma tinta do cabeçalho, senão ela
-     aparece transparente por cima do conteúdo. */
   background: var(--breu);
 }
 
