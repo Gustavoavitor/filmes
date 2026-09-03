@@ -49,14 +49,23 @@ class StarRating {
     this.tema     = options.tema || null;
     this.uid      = `sr${++_seqEstrela}`;
     this.hover    = 0;
+    // As classes de quem nos hospeda ficam guardadas: render() reescreve
+    // o className inteiro, e sem isto ele apagava a classe que o chamador
+    // usa para posicionar e estilizar o widget.
+    this.classesDoDono = container.className
+      .split(/\s+/).filter(c => c && !c.startsWith('star-rating') && !c.startsWith('tema-')
+                                 && c !== 'readonly' && c !== 'interactive');
 
     this.render();
   }
 
   render() {
-    this.container.className =
-      `star-rating ${this.readOnly ? 'readonly' : 'interactive'}` +
-      (this.tema ? ` tema-${this.tema}` : '');
+    this.container.className = [
+      ...this.classesDoDono,
+      'star-rating',
+      this.readOnly ? 'readonly' : 'interactive',
+      this.tema ? `tema-${this.tema}` : '',
+    ].filter(Boolean).join(' ');
     this.container.style.setProperty('--estrela-tam', `${this.size}px`);
     this.container.innerHTML = this._svg();
 

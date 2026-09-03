@@ -24,6 +24,20 @@
    1. CSS CUSTOM PROPERTIES (Design Tokens)
    ============================================================ */
 :root {
+  /* ── Camadas ──────────────────────────────────────────────
+     Os valores eram avulsos e iam de 1 a 99999, com o .trailer-modal
+     declarado duas vezes para vencer a ficha. A escala nomeada diz a
+     ordem em palavras, e um número novo entra sem precisar chutar. */
+  --z-atras:     -1;   /* friso atrás do cabeçalho de seção */
+  --z-letreiro:  40;   /* o letreiro vertical na lateral */
+  --z-barra:     60;   /* a barra de navegação flutuante */
+  --z-ficha:    200;   /* a ficha do filme, sobre a coleção */
+  --z-cartaz:   300;   /* o cartaz da recomendação, sobre a ficha */
+  --z-trailer:  400;   /* o trailer abre na frente dos dois */
+  --z-grao:     500;   /* o grão de película cobre o conteúdo */
+  --z-aviso:    600;   /* os avisos passam do grão */
+  --z-projecao: 700;   /* a projeção 35mm cobre a tela inteira */
+
   /* Colors */
   --cream:        #EFE3CC;
   --cream-dark:   #E2D4B8;
@@ -121,7 +135,7 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   opacity: 0.45;
   pointer-events: none;
-  z-index: 9999;
+  z-index: var(--z-grao);
   animation: grain 0.4s steps(3) infinite;
 }
 
@@ -1559,7 +1573,7 @@ h1, h2, h3, h4, h5, h6 {
 .trailer-modal {
   position: fixed;
   inset: 0;
-  z-index: 9000;
+  z-index: var(--z-trailer);
   display: none;
   align-items: center;
   justify-content: center;
@@ -1829,7 +1843,7 @@ h1, h2, h3, h4, h5, h6 {
   position: fixed;
   bottom: var(--space-8);
   right: var(--space-8);
-  z-index: 10000;
+  z-index: var(--z-aviso);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -1923,7 +1937,7 @@ h1, h2, h3, h4, h5, h6 {
 .projecao-35mm {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: calc(var(--z-projecao) + 10);
   background: #070402;
   opacity: 0;
   pointer-events: none;
@@ -2096,7 +2110,7 @@ h1, h2, h3, h4, h5, h6 {
 .projecao-abertura {
   position: fixed;
   inset: 0;
-  z-index: 99998;
+  z-index: var(--z-projecao);
   background: #fff4d6;
   pointer-events: none;
   opacity: 1;
@@ -2530,7 +2544,7 @@ h1, h2, h3, h4, h5, h6 {
 .rec-modal {
   position: fixed;
   inset: 0;
-  z-index: 9500;
+  z-index: var(--z-cartaz);
   display: none;
   align-items: center;
   justify-content: center;
@@ -3030,7 +3044,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 40;
+  z-index: var(--z-letreiro);
   display: none;
   flex-direction: column;
   gap: 2px;
@@ -3432,7 +3446,7 @@ textarea {
   position: fixed;
   inset-block-end: var(--space-6);
   inset-inline: 0;
-  z-index: 60;
+  z-index: var(--z-barra);
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -3557,7 +3571,7 @@ textarea {
 .ficha {
   position: fixed;
   inset: 0;
-  z-index: 9200;
+  z-index: var(--z-ficha);
   opacity: 0;
   transition: opacity 0.26s ease;
 }
@@ -3882,10 +3896,8 @@ body.com-ficha { overflow: hidden; }
 
 .card-legenda { margin-block-start: 0; }
 
-/* ── 2. O trailer tem de vir na frente de tudo ───────────────
-   Estava em 9000, abaixo da ficha (9200) e do modal de
-   recomendação (9500) — por isso o vídeo abria atrás. */
-.trailer-modal { z-index: 9700; }
+/* O trailer abre na frente da ficha e do cartaz — hoje isso está dito
+   na escala de camadas (--z-trailer), lá no topo do arquivo. */
 
 /* ── 3. O texto do ingresso preenche a peça ──────────────────
    Nome curto ganha corpo maior; nome longo encolhe e pode quebrar,
@@ -4674,3 +4686,110 @@ main > .section-header {
 .star-rating.tema-stalker.escolhendo .estrela:nth-child(3) { animation-delay: 0.14s; }
 .star-rating.tema-stalker.escolhendo .estrela:nth-child(4) { animation-delay: 0.21s; }
 .star-rating.tema-stalker.escolhendo .estrela:nth-child(5) { animation-delay: 0.28s; }
+
+/* ============================================================
+   39. ABERTURA DE SESSÃO
+   ============================================================
+   Antes tudo aparecia junto, com o mesmo fade de meio segundo, e
+   repetia a cada filtro. Agora a entrada é encenada e roda uma vez:
+   a marquise acende, o cartaz é içado para o painel, a embalagem
+   sobe na frente dele e a ficha técnica assenta por último.
+
+   As duas curvas vêm de fora e são boas: uma freia longo (o cartaz
+   pesado chegando ao lugar), a outra é o assentar curto do resto.
+   ============================================================ */
+
+:root {
+  --revelar: cubic-bezier(0.16, 1, 0.3, 1);
+  --assentar: cubic-bezier(0.25, 0.8, 0.28, 1);
+}
+
+/* ── O quadro da página, no carregamento ─────────────────────*/
+html.abrindo .site-header  { animation: marquise-desce 700ms var(--assentar) both; }
+html.abrindo .film-strip   { animation: lampadas-acendem 900ms steps(1) 120ms both; }
+html.abrindo .logo-title   { animation: neon-esquenta 1100ms ease-out 200ms both; }
+
+@keyframes marquise-desce {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Lâmpada velha não acende de primeira */
+@keyframes lampadas-acendem {
+  0%, 18%  { opacity: 0.12; filter: none; }
+  22%, 30% { opacity: 1; }
+  34%      { opacity: 0.2; }
+  44%, 100%{ opacity: 1; }
+}
+
+@keyframes neon-esquenta {
+  0%   { opacity: 0.25; filter: saturate(0.2) brightness(0.6); }
+  55%  { opacity: 1;    filter: saturate(1.3) brightness(1.15); }
+  100% { opacity: 1;    filter: none; }
+}
+
+/* ── O destaque, quando os dados chegam ──────────────────────
+   O billboard só existe depois da consulta, então a encenação dele
+   não pode depender do relógio do carregamento: ela começa quando o
+   primeiro destaque entra em cena. */
+
+/* O cartaz sobe de trás do painel. A máscara precisa de folga para a
+   sombra dura da letra pintada não ser aparada, e a margem negativa
+   devolve o espaço para o layout não se mexer. */
+.billboard-content.abertura .billboard-title {
+  display: block;
+  overflow: hidden;
+  padding: 0.14em 0.16em 0.2em;
+  margin: -0.14em -0.16em -0.2em;
+}
+
+.billboard-title-inner { display: inline-block; }
+
+.billboard-content.abertura .billboard-title-inner {
+  animation: cartaz-icado 1000ms var(--revelar) 220ms both;
+}
+
+@keyframes cartaz-icado {
+  from { transform: translateY(118%); }
+  to   { transform: translateY(0); }
+}
+
+/* A embalagem sobe na frente, sem escalar — encolher o objeto faria
+   parecer zoom de slide, e o que se quer é ele entrando em cena. */
+.billboard-content.abertura .billboard-poster-wrap {
+  animation: objeto-entra 900ms var(--revelar) 560ms both;
+}
+
+@keyframes objeto-entra {
+  from { opacity: 0; transform: translateY(3.4dvh); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Título original, tags e sinopse assentam juntos, como uma coisa só */
+.billboard-content.abertura .billboard-original-title,
+.billboard-content.abertura .billboard-meta,
+.billboard-content.abertura .billboard-synopsis {
+  animation: ficha-assenta 620ms var(--assentar) 820ms both;
+}
+
+/* Nota e botões fecham a sequência */
+.billboard-content.abertura .billboard-rating,
+.billboard-content.abertura .billboard-cta {
+  animation: ficha-assenta 620ms var(--assentar) 960ms both;
+}
+
+@keyframes ficha-assenta {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* A placa da sessão cai como tabuleta pendurada */
+html.abrindo .billboard-label {
+  animation: tabuleta-cai 620ms var(--assentar) 80ms both;
+}
+
+@keyframes tabuleta-cai {
+  0%   { opacity: 0; transform: rotate(-2deg) translateY(-18px); }
+  60%  { opacity: 1; transform: rotate(-2deg) translateY(2px); }
+  100% { opacity: 1; transform: rotate(-2deg) translateY(0); }
+}

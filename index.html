@@ -2,10 +2,28 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="theme-color" content="#17131C" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Cinemateca Pessoal — Coleção de Mídias Físicas</title>
   <meta name="description" content="Catálogo digital de uma coleção pessoal de filmes em Blu-ray e DVD. Explore, descubra e leia resenhas de títulos cuidadosamente selecionados." />
   <link rel="stylesheet" href="css/main.css" />
+  <script>
+    // A abertura roda uma vez por carregamento. A classe sai quando a
+    // última animação termina — ou depois de 6s, se algo travar, para
+    // nunca deixar a página presa num estado de entrada.
+    (function () {
+      var r = document.documentElement;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      r.className = (r.className + ' abrindo').trim();
+      var fim = function () { r.classList.remove('abrindo'); };
+      addEventListener('DOMContentLoaded', function () {
+        var t = setTimeout(fim, 6000);
+        document.addEventListener('animationend', function (e) {
+          if (e.target === document.querySelector('.logo-title')) { clearTimeout(t); fim(); }
+        });
+      });
+    })();
+  </script>
 </head>
 <body>
 

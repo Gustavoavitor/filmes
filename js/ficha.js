@@ -47,6 +47,8 @@ function abrirFicha(id, semHistorico = false) {
     montarColapso();
   });
 
+  esconderFundo(true);
+  document.addEventListener('keydown', prenderFoco);
   document.getElementById('ficha-fechar')?.focus();
   carregarComentariosFicha(filme.id);
 }
@@ -57,6 +59,13 @@ function fecharFicha(semHistorico = false) {
 
   ficha.classList.remove('aberta');
   document.body.classList.remove('com-ficha');
+  document.removeEventListener('keydown', prenderFoco);
+  esconderFundo(false);
+
+  // Devolve o foco ao card de onde a ficha saiu, senão ele volta para o
+  // começo do documento e a pessoa perde o lugar na prateleira.
+  const volta = fichaAberta &&
+    document.querySelector(`.film-card[data-filme-id="${fichaAberta.id}"]`);
 
   fichaScroll?.kill();
   fichaScroll = null;
@@ -73,7 +82,10 @@ function fecharFicha(semHistorico = false) {
   fichaViewer = null;
   fichaAberta = null;
 
-  setTimeout(() => { ficha.hidden = true; }, 260);
+  setTimeout(() => {
+    ficha.hidden = true;
+    volta?.focus?.();
+  }, 260);
 
   if (!semHistorico) {
     const url = new URL(window.location.href);
@@ -398,6 +410,44 @@ function montarColapso() {
 
   fichaScroll = linha.scrollTrigger;
   ScrollTrigger.refresh();
+}
+
+// ── Foco preso enquanto a ficha está aberta ───────────────────
+// Ela se declara aria-modal, mas sem isto o Tab continuava passeando
+// pela coleção atrás do desfoque: quem usa teclado saía do diálogo sem
+// perceber e ia clicar em card que não está mais visível.
+const FOCAVEIS = 'a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])';
+
+function prenderFoco(e) {
+  if (e.key !== 'Tab') return;
+  const ficha = document.getElementById('ficha');
+  if (!ficha || ficha.hidden) return;
+
+  const alvos = [...ficha.querySelectorAll(FOCAVEIS)].filter(el => el.offsetParent !== null);
+  if (!alvos.length) return;
+
+  const primeiro = alvos[0];
+  const ultimo   = alvos[alvos.length - 1];
+
+  if (e.shiftKey && document.activeElement === primeiro) {
+    e.preventDefault();
+    ultimo.focus();
+  } else if (!e.shiftKey && document.activeElement === ultimo) {
+    e.preventDefault();
+    primeiro.focus();
+  }
+}
+
+// O resto da página sai da árvore de acessibilidade junto: sem isso o
+// leitor de tela continua anunciando a coleção por baixo da ficha.
+function esconderFundo(esconder) {
+  // O modal do trailer e os avisos abrem POR CIMA da ficha, e são irmãos
+  // dela no body: se entrassem no inert, o trailer abriria morto.
+  const fora = 'body > *:not(#ficha):not(.trailer-modal):not(.toast-container)';
+  document.querySelectorAll(fora).forEach(el => {
+    if (esconder) el.setAttribute('inert', '');
+    else el.removeAttribute('inert');
+  });
 }
 
 // Devolve a função que desliga o acompanhamento.

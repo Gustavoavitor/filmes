@@ -20,6 +20,11 @@ let billboardFilmes = [];
 let billboardIdx    = 0;
 let billboardTimer  = null;
 
+// A abertura é encenada uma vez. Depois disso, trocar de slide ou
+// filtrar a grade usa a transição curta de sempre.
+let billboardEstreou = false;
+let gradeEstreou     = false;
+
 // ── Fetch data ────────────────────────────────────────────────
 // Os acessos ao banco vivem em supabase-client.js (fetchFilmes, fetchDestaques).
 async function carregarDados() {
@@ -92,7 +97,7 @@ function applyFilters() {
 // ── Render film card ──────────────────────────────────────────
 function createCard(filme) {
   const card = document.createElement('article');
-  card.className = 'film-card animate-fade-in';
+  card.className = 'film-card' + (gradeEstreou ? '' : ' animate-fade-in');
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
   card.setAttribute('aria-label', `Ver detalhes de ${filme.titulo}`);
@@ -167,6 +172,7 @@ function renderGrid() {
   }
 
   page.forEach(f => grid.appendChild(createCard(f)));
+  gradeEstreou = true;
 }
 
 // ── Pagination ────────────────────────────────────────────────
@@ -227,20 +233,15 @@ function renderBillboardSlide(idx) {
     ? f.generos.split(',').map(g => `<span class="meta-tag">${g.trim()}</span>`).join('')
     : '';
 
-  let ratingHTML = '';
-  if (f.minha_nota) {
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-      if (f.minha_nota >= i) stars += '★';
-      else if (f.minha_nota >= i - 0.5) stars += '½';
-      else stars += '☆';
-    }
-    ratingHTML = `
-      <div class="billboard-rating">
-        <span class="billboard-stars" aria-label="Nota: ${f.minha_nota} de 5">${stars}</span>
-        <span class="billboard-rating-num">${f.minha_nota.toFixed(1)}</span>
-      </div>`;
-  }
+  // As estrelas vêm do mesmo componente da ficha, senão o tema do filme
+  // não chega aqui — o billboard ficava com ★½☆ de texto enquanto o
+  // resto do site tinha veludo, chuvisco ou colina.
+  const ratingHTML = f.minha_nota
+    ? `<div class="billboard-rating">
+         <div class="billboard-estrelas"></div>
+         <span class="billboard-rating-num">${f.minha_nota.toFixed(1)}</span>
+       </div>`
+    : '';
 
   content.style.opacity = '0';
   content.style.transition = 'opacity .4s ease';
@@ -251,7 +252,7 @@ function renderBillboardSlide(idx) {
         <span class="billboard-format-badge">${formatoBadge}</span>
       </div>
       <div class="billboard-info animate-fade-in-up">
-        <h2 class="billboard-title">${f.titulo}</h2>
+        <h2 class="billboard-title"><span class="billboard-title-inner">${f.titulo}</span></h2>
         ${f.titulo_original ? `<p class="billboard-original-title">${f.titulo_original} (${f.ano || ''})</p>` : ''}
         <div class="billboard-meta">
           ${f.diretor ? `<span class="meta-tag">Dir. ${f.diretor}</span>` : ''}
@@ -263,12 +264,32 @@ function renderBillboardSlide(idx) {
         ${f.sinopse ? `<p class="billboard-synopsis">${f.sinopse.substring(0, 300)}${f.sinopse.length > 300 ? '…' : ''}</p>` : ''}
         ${ratingHTML}
         <div class="billboard-cta">
-          <a href="filme.html?id=${f.id}" class="btn btn-primary" id="billboard-cta-details">Ver Detalhes</a>
-          ${f.trailer_url ? `<a href="${f.trailer_url}" target="_blank" rel="noopener" class="btn btn-secondary" id="billboard-cta-trailer">▶ Trailer</a>` : ''}
+          <button type="button" class="btn btn-primary" id="billboard-cta-details">Ver detalhes</button>
+          ${f.trailer_url ? `<button type="button" class="btn btn-secondary" id="billboard-cta-trailer">▶ Trailer</button>` : ''}
         </div>
       </div>
     `;
     content.style.opacity = '1';
+
+    // Só o primeiro destaque é encenado. Nas trocas seguintes vale o
+    // fade curto de sempre: repetir a abertura a cada slide cansaria.
+    if (!billboardEstreou) {
+      billboardEstreou = true;
+      content.classList.add('abertura');
+      setTimeout(() => content.classList.remove('abertura'), 2200);
+    }
+
+    if (f.minha_nota) {
+      renderStars(content.querySelector('.billboard-estrelas'),
+                  Number(f.minha_nota), 20, f.tema_estrelas || null);
+    }
+
+    // A ficha abre por cima da coleção, como no card. O trailer usa o
+    // mesmo modal da ficha em vez de jogar o usuário para fora do site.
+    content.querySelector('#billboard-cta-details')
+      ?.addEventListener('click', () => abrirFicha(f.id));
+    content.querySelector('#billboard-cta-trailer')
+      ?.addEventListener('click', () => abrirTrailer(f));
   }, 200);
 
   // Dots
